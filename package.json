@@ -1,0 +1,20 @@
+{
+    "name": "hioogo"
+  , "description": "nodephoto"
+  , "version": "0.0.1"
+  , "private": false
+  , "engines": {
+        "node": "0.10.x"
+      , "npm":  "1.2.x"
+    }
+  , "dependencies": {
+      "express": "latest"
+    , "mongoose": "latest"
+    , "underscore": "latest"
+    , "gm": "latest"
+    , "async": "latest"
+    , "shelljs": "latest"
+  }
+  , "devDependencies": {
+    }
+}

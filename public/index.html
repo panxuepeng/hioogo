@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>看自然</title>
+<script>
+var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date() - this.begin}};
+</script>
+<link rel="stylesheet" href="assets/bootstrap/2.3.1/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="assets/css/main.css"/>
+<link rel="stylesheet" href="assets/bootstrap/2.3.1/css/bootstrap-responsive.min.css"/>
+<!--[if IE 6]>
+  <link href="assets/lib/ie6/ie6.min.css" rel="stylesheet"/>
+<![endif]-->
+<!--[if lt IE 9]>
+  <script src="assets/lib/html5/html5.js"></script>
+<![endif]-->
+</head>
+
+<body>
+<script>_Timestamp.log('beginBody');</script>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</a>
+		<a class="brand">看自然</a>
+		<div class="nav-collapse">
+			<ul class="nav" id="photo-tags">
+			  <li class="active"><a href="#/photolist">最新主题</a></li>
+			  <li><a href="#/photolist">推荐主题</a></li>
+			</ul>
+			
+			<a id="login" href="#/login" class="btn pull-right"><i class="icon-user"></i> 登录</a>
+			<div id="post" class="btn-group pull-right hide">
+				<button class="btn btn-info" onclick="location='/#/post'">创建照片主题</button>
+				<button class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+				  <ul class="dropdown-menu">
+					<li><a href="#/settings">站点设置</a></li>
+					<li><a href="#/profile">个人信息</a></li>
+					<li><a href="#/password">修改密码</a></li>
+					<li class="divider"></li>
+					<li><a href="#/tags">修改分类</a></li>
+					<li class="divider"></li>
+					<li><a href="#/logout" id="logout">退出</a></li>
+				  </ul>
+			</div>
+		</div>
+	</div>
+  </div>
+</div>
+
+<div id="player" class="hide">
+	<div id="player-overlay"></div>
+	<div class="container">
+		<div class="row">
+			<div class="span1"></div>
+			<div class="span10">
+				<div id="player-photo" class="photo">
+					<div id="player-desc"></div>
+					<div id="player-shooting-time"></div>
+				</div>
+			</div>
+			<div class="span1"></div>
+		</div>
+	</div>
+	<a id="player-prev" name="prev" class=""></a>
+	<a id="player-next" name="next" class=""></a>
+	<a id="player-close"></a>
+</div>
+
+<div class="container" id="container">
+	<div class="row-fluid" id="row-loading">
+		<div class="span12">
+		<p id="loading">加载数据...</p>
+		</div>
+	</div>
+</div>
+
+<footer class="footer"></footer>
+
+<script>_Timestamp.log('beginScript');</script>
+<script src="assets/seajs/sea.js" id="seajsnode"></script>
+<script>_Timestamp.log('endSeajs');</script>
+<script>
+// debug 状态含义参考： https://github.com/seajs/seajs/issues/227
+var _DEBUG = 2;
+
+seajs.config({
+  debug: _DEBUG,
+  base : 'http://'+location.hostname+(location.port==='80'? '': ':'+location.port),
+  alias: {
+	'jquery':'assets/jquery/jquery-1.10.2.min.js',
+	'plupload':'assets/plupload/1.5.6/plupload.full.js',
+	'artTemplate':'assets/lib/artTemplate/artTemplate.js',
+	'md5':'assets/lib/common/md5.js',
+	'backbone':'assets/lib/backbone/backbone.js',
+	'gestures':'assets/lib/common/jquery.gestures.js',
+	
+	'config':'assets/js/config.js',
+	'router':'assets/js/router.js'
+  },
+  preload: [
+	// 调试状态下禁用压缩文件
+	_DEBUG ? '': 'assets/min/action-20130207.js',
+	'jquery'
+  ]
+});
+
+// 潘雪鹏 2012-12-18
+// ie9下使用setTimeout会延迟一些，router、config等候280s左右
+// ie下不使用setTimeout会快一些，router等候15s，config等候109s
+// chrome下没有太明显的区别，仅是load事件触发事件稍微不同
+// 综合考虑，还是不再使用setTimeout
+
+seajs.use("router");
+</script>
+
+<!--[if IE 6]>    
+	 <script src="assets/lib/ie6/ie6.min.js"></script>
+<![endif]-->
+<script>_Timestamp.log('endBody');</script>
+
+<div class="modal fade hide" id="dialog">
+  <div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>提示</h3>
+  </div>
+  <div class="modal-body"></div>
+  <div class="modal-footer">
+	<a class="btn" data-dismiss="modal">关闭</a>
+	<a class="btn btn-primary" name="onok"> 确 定 </a>
+  </div>
+</div>
+</body>
+</html>

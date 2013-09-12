@@ -1,0 +1,35 @@
+<div class="row-fluid" id="row-photolist">
+	<div class="span12">
+		<div class="row-fluid">
+			<div class="span12"><h3>最新主题</h3></div>
+		</div>
+		<div class="row-fluid thumblist" id="photolist"></div>
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="pagination hide" id="pagination">
+				  <ul>
+					<li><a href="/#/photolist">上一页</a></li>
+					<li><a href="/#/photolist">下一页</a></li>
+				  </ul>
+				</div>
+			</div>	
+		</div>
+	</div>
+
+<script type="text/html" id="tmpl-photolist" class="hide">
+<ul class="thumbnails">
+<% for (var i = 0; i < list.length; i++) { %>
+	<li class="span3">
+		<div class="thumbnail">
+			<a href="#/photo/<%=list[i]["topicid"] %>">
+				<img src="<%=list[i]["photo"]%>"  title="<%=list[i]["photo_desc"]%>"/>
+			</a>
+			<h4><%=list[i]["title"]%></h4>
+			<p><%=list[i]["description"]%></p>
+			<p>(该主题有 <%=list[i]["photo_count"]%> 张照片)</p>
+		</div>
+	</li>
+<% } %>
+</ul>
+</script>
+</div>
