@@ -1,6 +1,6 @@
 ﻿define(function(require, exports, module){
   var Config = require('config')
-	, template = require('artTemplate');
+	, template = require('template');
   
   exports.tmpl = 'photolist';
   

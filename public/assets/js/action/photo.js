@@ -1,43 +1,43 @@
 define(function(require, exports, module){
-  var Config = require('config')
+	var Config = require('config')
 	, common = require('./common')
 	, photoPlayer = null
-	, template = require('artTemplate')
+	, template = require('template')
 	, currentTopicid = 0
 	, dom = $(document);
-  
-  require.async('../photoplayer/'+Config.player, function( player ) {
-    photoPlayer = player;
-  });
-  
-  exports.show = function( id ){
+
+	require.async('../photoplayer/'+Config.player, function( player ) {
+	photoPlayer = player;
+	});
+
+	exports.show = function( id ){
 	id = id || 1;
 	currentTopicid = id;
-	
+
 	if( Config.cache.topic[id] ) {
 		initData(Config.cache.topic[id]);
 	} else {
-		$.getJSON(Config.serverLink('photo/'+id), function(data){
+		$.getJSON(Config.serverLink('topics/'+id), function(data){
 			initData(data);
 			Config.cache.topic[currentTopicid] = data;
 		});
 	}
-  }
-  
-  exports.init = function( id ){
+	}
+
+	exports.init = function( id ){
 	// init ...
-	
+
 	dom.on('click', '[name=photo-edit]', function(){
 		location = '/#/post/'+currentTopicid;
 	});
-	
+
 	// [显示/隐藏]编辑按钮
 	dom.on('mouseover.photo', '.thumbnail', function(){
 		$(this).find('.photo_edit').show();
 	}).on('mouseleave.photo', '.thumbnail', function(){
 		$(this).find('.photo_edit').hide();
 	})
-	
+
 	// 删除照片
 	dom.on('click.photo', '[name="photo-remove"]', function(){
 		if( confirm('确认彻底删除此照片吗？') ){
@@ -54,7 +54,7 @@ define(function(require, exports, module){
 			remove( 'unlink-photo', o.attr('photoid') );
 		}
 	});
-	
+
 	// 删除主题
 	dom.on('click.topic-remove', '[name="topic-remove"]', function(){
 		if( confirm('确认删除此主题和其所有照片吗？') ){
@@ -64,13 +64,13 @@ define(function(require, exports, module){
 			Config.go( Config.home() );
 		}
 	});
-	
-	
-	common.lazyload();
-  }
 
-  // 编辑图片描述
-  $(document).on('click', 'button[name=photo-edit]', function(){
+
+	common.lazyload();
+	}
+
+	// 编辑图片描述
+	$(document).on('click', 'button[name=photo-edit]', function(){
 	var html = template.render('tmpl-photo-edit', getEditTmplData($(this)));
 	common.dialog({
 		title: '编辑照片描述',
@@ -85,21 +85,22 @@ define(function(require, exports, module){
 		}
 		
 	});
-  });
-  
-  function initData(data){
-  		var html = '';
-		if( data && typeof data=== 'object' && data.list ) {
-			html = template.render('tmpl-photoview', data);
+	});
+
+	function initData(data){
+		var html = '';
+		console.log(data)
+		if( data && typeof data=== 'object' && data[1] ) {
+			html = template.render('tmpl-photoview', data[1]);
 		}
 		
 		$("#photoview").html( html );
 		setTimeout(function(){
 			photoPlayer.init();
 		}, 0);
-  }
-  
-  function getEditTmplData( btn ){
+	}
+
+	function getEditTmplData( btn ){
 	var	img = btn.closest('.thumbnail').find('img'),
 		src = img.attr('src'),
 		photoid = img.attr('photoid'),
@@ -111,12 +112,12 @@ define(function(require, exports, module){
 		topicid: currentTopicid,
 		photoid: photoid,
 		shooting_time: shooting_time,
-		description: description	
+		description: description
 	}
-  }
-  
-  // 提交照片描述
-  function postPhotoDesc( dialog ){
+	}
+
+	// 提交照片描述
+	function postPhotoDesc( dialog ){
 	var data = dialog.find('form').serialize();
 	$.post(Config.serverLink('photo/edit'), data, function( result ){
 		if( result[0] === 200 ){
@@ -135,10 +136,10 @@ define(function(require, exports, module){
 	}, 'json').error(function(xhr, status){
 		alert(status);
 	});
-  }
+	}
 
-  // 删除照片/主题
-  function remove( action, photoid ){
+	// 删除照片/主题
+	function remove( action, photoid ){
 	action = action || 'remove-photo';
 	photoid = photoid || 0;
 	var data = {action: action, topicid: currentTopicid, photoid: photoid};
@@ -152,5 +153,5 @@ define(function(require, exports, module){
 		alert(status);
 		$("#photo-"+photoid).show();
 	});
-  }
+	}
 });

@@ -54,17 +54,14 @@ var users = C('users', {
 				return res.send('users create error')
 			}
 
-			return res.send('users create success');
+			return res.send('users create success')
 		})
 	},
 	
 	show: function(req, res) {
 		var user = auth.get(req);
-		if (user) {
-			res.jsonp([200, user]);
-		} else {
-			res.jsonp([404, 'not found user.']);
-		}
+		user ? res.jsonp([200, user])
+			: res.jsonp([404, '用户不存在'])
 	}
 });
 

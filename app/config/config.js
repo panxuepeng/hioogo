@@ -10,7 +10,7 @@ module.exports = {
 			'static': rootPath+'/public'
 		},
 		app: {
-			name: 'Kanziran'
+			name: 'hioogo'
 		},
 		authCookieName: 'u', // 用于身份验证的cookie name
 		cookieSecret: 'hello', // cookie加密的私钥

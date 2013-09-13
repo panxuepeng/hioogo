@@ -95,10 +95,10 @@ seajs.config({
   alias: {
 	'jquery':'assets/jquery/jquery-1.10.2.min.js',
 	'plupload':'assets/plupload/1.5.6/plupload.full.js',
-	'artTemplate':'assets/lib/artTemplate/artTemplate.js',
+	'template':'assets/lib/arttemplate/template.min.js',
 	'md5':'assets/lib/common/md5.js',
-	'backbone':'assets/lib/backbone/backbone.js',
-	'gestures':'assets/lib/common/jquery.gestures.js',
+//	'backbone':'assets/lib/backbone/backbone.js',
+//	'gestures':'assets/lib/common/jquery.gestures.js',
 	
 	'config':'assets/js/config.js',
 	'router':'assets/js/router.js'
@@ -110,17 +110,31 @@ seajs.config({
   ]
 });
 
-// 潘雪鹏 2012-12-18
-// ie9下使用setTimeout会延迟一些，router、config等候280s左右
-// ie下不使用setTimeout会快一些，router等候15s，config等候109s
-// chrome下没有太明显的区别，仅是load事件触发事件稍微不同
-// 综合考虑，还是不再使用setTimeout
-
 seajs.use("router");
+
+/*
+	目前 debug 有三个值：
+
+	0  --  普通状态
+	1  --  调试状态
+	2  --  无缓存状态 
+	debug 为 0 时具有的特征是：
+
+	只会输出 console.warn 等类型的信息。
+	debug 为 1 时具有的特征是：
+
+	所有 log 信息都会输出。debug 为 0 时只会输出 console.warn 等类型的信息，不会输出 console.log 信息。
+	自动解 combo. debug 为 1 时，plugin-combo 自动失效。
+	不会删除插入的 script/link 节点。debug 为 0 时会删除。
+	debug 为 2 时具有的特征是：
+
+	具有 1 的所有特征。
+	同时对所有请求加上时间戳，无缓存状态。
+*/
 </script>
 
-<!--[if IE 6]>    
-	 <script src="assets/lib/ie6/ie6.min.js"></script>
+<!--[if IE 6]>
+	<script src="assets/lib/ie6/ie6.min.js"></script>
 <![endif]-->
 <script>_Timestamp.log('endBody');</script>
 

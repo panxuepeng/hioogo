@@ -12,16 +12,29 @@ var control = {};
 
 // 获取主题所属的图片信息
 control.index = function(req, res) {
+	var photoids = req.query.photoids
+	var where
 	
-	res.send('update');
+	if ( photoids && /\w{24,24}/i.test(photoids) ) {
+		photoids = photoids.replace(/\s+/g, '')
+		photoids = photoids.split(',')
+		where = {_id: {'$in': photoids}}
+	}
+	
+	
+	Photo.find(where)
+	.skip(0)
+	.limit(10)
+	.exec(function (err, result) {
+		err ? res.jsonp([500, err])
+			: res.jsonp([200, result])
+	});
 }
 
-/**
- * 作者身份验证
- * 
- */
+// 作者身份验证
 control.auth = function(req, res, next) {
 	var photoid = req.body.photoid
+	
 	Photo.findOne({ _id: photoid}).exec(function (err, result) {
 		if (err) {
 			res.jsonp([500, err])
@@ -54,13 +67,10 @@ control.update = function(req, res) {
 // 上传成功返回示例 {"id":"id","url":"url"}
 // 上传失败返回示例 {"error":1,"msg":"Failed to save."}
 control.upload = function(req, res) {
-	async.series( upload(req, res), function(err, results) {
-		if (err) {
-			res.jsonp({error:1, msg: err})
-		} else {
-			res.jsonp({id:results['insert'], url:results['write'] })
-		}
-	});
+	async.series( upload(req, res), function(err, result) {
+		err ? res.jsonp({error:1, msg: err})
+			: res.jsonp({id:result['insert'], url:result['write'] })
+	})
 }
 
 // 删除图片
@@ -68,10 +78,8 @@ control.destroy = function(req, res) {
 	var photoid = req.query.photoid
 
 	Photo.remove({_id: photoid}, function(err, numberAffected) {
-		if (err) {
-			return res.jsonp([500, err])
-		}
-		return res.jsonp([200, '删除成功'])
+		err ? res.jsonp([500, err])
+			: res.jsonp([200, '删除成功'])
 	});
 }
 

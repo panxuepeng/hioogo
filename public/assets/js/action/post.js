@@ -182,7 +182,7 @@ define(function(require, exports, module){
 				runtimes : 'flash, html5',
 				file_data_name: 'photo',
 				browse_button : 'pickfiles',
-				url : Config.serverLink('photo'),
+				url : Config.serverLink('photos'),
 				flash_swf_url : 'assets/plupload/1.5.6/plupload.flash.swf',
 				filters : [
 					{title : "Image files", extensions : "jpg"}
