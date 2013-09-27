@@ -44,23 +44,51 @@ function series(req, res) {
 						cb(null, true);
 					} else {
 						// 图片以及存在，直接返回
-						res.jsonp({id:photo._id, url:getPhotoUrl(photo)});
+						res.jsonp({id:photo._id, url:Photo.getPhotoUrl(photo)});
 					}
 				});
 			});
 		},
 		
 		// 获取照片的元信息
+		// 如果是不带exif信息图片，则使用默认值（空）
 		getExif: function(cb) {
 			gm(req.photoData)
-			.identify(function(err, exif){
-				// 删除一些没用，但是比较长的字段信息
-				delete exif['Profile-EXIF']['Maker Note'];
-				delete exif['Profile-EXIF']['0xC4A5'];
-				delete exif['Profile-EXIF']['User Comment'];
+			.identify(function(err, data){
+				var exif
 				
-				req.photoExif = exif;
-				//console.log(exif);
+				// console.log(exif)
+				if (data && data['Profile-EXIF']) {
+					exif = data['Profile-EXIF']
+					
+					// 删除一些没用，但是比较长的字段信息
+					delete exif['Maker Note']
+					delete exif['0xC4A5']
+					delete exif['User Comment']
+					
+					exif.width = data['size'].width
+					exif.height = data['size'].height
+					exif.filename = data.path
+					
+					var dt = exif['Date Time'].split(' ')
+					dt[0] = dt[0].replace(':', '/').replace(':', '/')
+					exif['Date Time'] = new Date(dt.join(' '))
+				} else {
+					exif = {
+						'Date Time': null
+						, 'width': 0
+						, 'height': 0
+						, 'Make': ''
+						, 'Model': ''
+						, 'ISO Speed Ratings': ''
+						, 'Exposure Time': ''
+						, 'Focal Length': ''
+						, 'F Number': ''
+						, 'Exposure Program': ''
+					}
+				}
+				req.photoExif = exif
+				
 				if (err) {
 					cb(err);
 				} else{
@@ -104,33 +132,19 @@ function series(req, res) {
 				, uid: null
 				, photoData: req.photoData
 				, photoMd5: req.photoMd5
-			});
-			delete req.photoExif;
-			delete req.photoData;
-
+			})
+			delete req.photoExif
+			delete req.photoData
 			photo.save(function(err, result) {
 				if (err) {
-					cb(err);
+					cb(err)
 				} else {
-					cb(null, result._id);
+					cb(null, result._id)
 				}
 			});
 			
 		}
 	}
-}
-
-// 返回图片url地址
-function getPhotoUrl(photo, size) {
-	var d = new Date(photo.created_at)
-	size = size || config.thumbList[0][0]
-	year = d.getFullYear()
-	month = d.getMonth()+1
-	day = d.getDate()
-	month = (month > 9) ? month: '0'+month
-	day = (day > 9) ? day: '0'+day
-	
-	return "photo/"+size+"/"+year+""+month+"/"+day+"/"+photo.mark+".jpg"
 }
 
 // 返回图片保存地址

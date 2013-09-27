@@ -22,11 +22,10 @@
 	<li class="span3">
 		<div class="thumbnail">
 			<a href="#/photo/<%=list[i]["topicid"] %>">
-				<img src="<%=list[i]["photo"]%>"  title="<%=list[i]["photo_desc"]%>"/>
+				<img src="<%=list[i]["cover_photo"]%>"/>
 			</a>
-			<h4><%=list[i]["title"]%></h4>
+			<h4><%=list[i]["title"]%> (<%=list[i]["photo_count"]%>张)</h4>
 			<p><%=list[i]["description"]%></p>
-			<p>(该主题有 <%=list[i]["photo_count"]%> 张照片)</p>
 		</div>
 	</li>
 <% } %>

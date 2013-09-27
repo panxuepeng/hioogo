@@ -1,0 +1,23 @@
+{
+  "name": "hioogo",
+  "title": "Hioogo",
+  "description": "The best jQuery plugin ever.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/panxuepeng/hioogo",
+  "author": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/panxuepeng/hioogo.git"
+  },
+  "bugs": "https://github.com/panxuepeng/hioogo/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/panxuepeng/hioogo/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}

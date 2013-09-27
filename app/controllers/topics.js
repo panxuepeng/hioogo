@@ -1,6 +1,7 @@
 var C = require("../common/index")
   , User = C.model('User')
   , Topic = C.model('Topic')
+  , Photo = C.model('Photo')
   , utils = C.utils
   , auth = C.auth
   , _ = C._
@@ -14,8 +15,29 @@ control.index = function(req, res) {
 	.skip(0)
 	.limit(10)
 	.exec(function (err, topics) {
-		err ? res.jsonp([500, err])
-			: res.jsonp([200, topics])
+		if (err) {
+			res.jsonp([500, err])
+		} else {
+			//var ids = []
+			
+			topics.forEach(function(topic){
+				topic.cover_photo = topic.cover_photo || 'default'
+				//ids.push(topic.cover_photo)
+			})
+			/*
+			Photo.find({_id: {'$in':ids}}).exec(function(err, photos){
+				if (err) {
+					res.jsonp([500, err])
+				} else {
+					photos.forEach(function(photo){
+						photo.url = Photo.getPhotoUrl(photo)
+					})
+					
+					res.jsonp([200, topics])
+				}
+			})
+			*/
+		}
 	})
 }
 
@@ -65,6 +87,7 @@ control.create = function(req, res) {
 		, photo_count: photoList.length
 		, created_at: req.time
 		, updated_at: req.time
+		, cover_photo: post.cover_photo
 		, status: 1
 		, photos: photoList
 	};

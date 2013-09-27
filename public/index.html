@@ -6,14 +6,14 @@
 <script>
 var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date() - this.begin}};
 </script>
-<link rel="stylesheet" href="assets/bootstrap/2.3.1/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="dist/bootstrap/2.3.1/css/bootstrap.min.css"/>
 <link rel="stylesheet" href="assets/css/main.css"/>
-<link rel="stylesheet" href="assets/bootstrap/2.3.1/css/bootstrap-responsive.min.css"/>
+<link rel="stylesheet" href="dist/bootstrap/2.3.1/css/bootstrap-responsive.min.css"/>
 <!--[if IE 6]>
-  <link href="assets/lib/ie6/ie6.min.css" rel="stylesheet"/>
+  <link href="assets/ie6/ie6.min.css" rel="stylesheet"/>
 <![endif]-->
 <!--[if lt IE 9]>
-  <script src="assets/lib/html5/html5.js"></script>
+  <script src="assets/html5/html5.js"></script>
 <![endif]-->
 </head>
 
@@ -83,34 +83,29 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 <footer class="footer"></footer>
 
 <script>_Timestamp.log('beginScript');</script>
-<script src="assets/seajs/sea.js" id="seajsnode"></script>
+<script src="dist/seajs/2.2.0/seajs.js" id="seajsnode"></script>
+<script src="assets/jquery/jquery-1.10.2.min.js"></script>
 <script>_Timestamp.log('endSeajs');</script>
 <script>
 // debug 状态含义参考： https://github.com/seajs/seajs/issues/227
-var _DEBUG = 2;
+var _DEBUG = 1;
 
 seajs.config({
   debug: _DEBUG,
-  base : 'http://'+location.hostname+(location.port==='80'? '': ':'+location.port),
+  base: 'http://'+location.hostname+(location.port==='80'? '': ':'+location.port)+'/dist',
   alias: {
-	'jquery':'assets/jquery/jquery-1.10.2.min.js',
-	'plupload':'assets/plupload/1.5.6/plupload.full.js',
-	'template':'assets/lib/arttemplate/template.min.js',
-	'md5':'assets/lib/common/md5.js',
-//	'backbone':'assets/lib/backbone/backbone.js',
-//	'gestures':'assets/lib/common/jquery.gestures.js',
+//	'jquery': 'assets/jquery/jquery-1.10.2.min.js',
 	
-	'config':'assets/js/config.js',
-	'router':'assets/js/router.js'
+	'plupload': 'plupload/1.5.6/plupload',
+	'template': 'arttemplate/2.0.1/arttemplate',
+	'md5': 'md5/1.0.0/md5'
   },
   preload: [
-	// 调试状态下禁用压缩文件
-	_DEBUG ? '': 'assets/min/action-20130207.js',
-	'jquery'
+	//'hioogo/0.1.0/hioogo',
   ]
 });
 
-seajs.use("router");
+seajs.use('hioogo/0.1.0/hioogo');
 
 /*
 	目前 debug 有三个值：
@@ -134,7 +129,7 @@ seajs.use("router");
 </script>
 
 <!--[if IE 6]>
-	<script src="assets/lib/ie6/ie6.min.js"></script>
+	<script src="assets/ie6/ie6.min.js"></script>
 <![endif]-->
 <script>_Timestamp.log('endBody');</script>
 

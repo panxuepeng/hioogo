@@ -1,0 +1,23 @@
+{
+  "name": "backbone",
+  "title": "Backbone",
+  "description": "The best jQuery plugin ever.",
+  "version": "1.0.0",
+  "homepage": "https://github.com/panxuepeng/backbone",
+  "author": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/panxuepeng/backbone.git"
+  },
+  "bugs": "https://github.com/panxuepeng/backbone/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/panxuepeng/backbone/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}

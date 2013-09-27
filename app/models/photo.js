@@ -60,32 +60,43 @@ PhotoSchema.statics = {
 	*/
 	// 构建一个Photo实例
 	create: function(data) {
-	var exif = data.exif['Profile-EXIF'];
-	var dt = exif['Date Time'].split(' ');
-	dt[0] = dt[0].replace(':', '/').replace(':', '/');
-	var Photo = mongoose.model('Photo');
+		var exif = data.exif
+		var Photo = mongoose.model('Photo')
 
-	var photo = new Photo({
-		user_id: data.uid
-		, mark: data.photoMd5
-		, shooting_time: new Date(dt.join(' ')) // 拍摄时间
-		, filesize: Math.round(data.photoData.length/1024) // 文件大小，单位k
-		, width: data.exif['size'].width
-		, height: data.exif['size'].height
-		, exif: {
-			make: exif.Make // 生成厂商
-			, model: exif.Model // 型号
-			, iso: exif['ISO Speed Ratings'] // iso
-			, exposure_time: exif['Exposure Time'] // 曝光时间
-			, focal_length: exif['Focal Length'] // 焦距
-			, f_number: exif['F Number'] // 焦距
-			, exposure_program: exif['Exposure Program'] // 曝光程序
-			, shot: 'm' // 镜头型号
-			, filename: data.exif['path'] // 文件名称
-		}
-	});
+		var photo = new Photo({
+			user_id: data.uid
+			, mark: data.photoMd5
+			, shooting_time: exif['Date Time'] // 拍摄时间
+			, filesize: Math.round(data.photoData.length/1024) // 文件大小，单位k
+			, width: exif.width
+			, height: exif.height
+			, exif: {
+				make: exif.Make // 生成厂商
+				, model: exif.Model // 型号
+				, iso: exif['ISO Speed Ratings'] // iso
+				, exposure_time: exif['Exposure Time'] // 曝光时间
+				, focal_length: exif['Focal Length'] // 焦距
+				, f_number: exif['F Number'] // 焦距
+				, exposure_program: exif['Exposure Program'] // 曝光程序
+	//			, shot: 'm' // 镜头型号
+				, filename: exif['path'] // 文件名称
+			}
+		});
 
-	return photo;
+		return photo;
+	},
+	
+	// 返回图片url地址
+	getPhotoUrl: function(photo, size) {
+		var d = new Date(photo.created_at)
+		size = size || config.thumbList[0][0]
+		year = d.getFullYear()
+		month = d.getMonth()+1
+		day = d.getDate()
+		month = (month > 9) ? month: '0'+month
+		day = (day > 9) ? day: '0'+day
+		
+		return "photo/"+size+"/"+year+""+month+"/"+day+"/"+photo.mark+".jpg"
 	}
 }
 

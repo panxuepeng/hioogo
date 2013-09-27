@@ -14,7 +14,7 @@ var TopicSchema = new Schema({
   , photo_count: { type: Number, default: 0 }
   , created_at: {type: Date, default: Date.now}
   , updated_at: {type: Date, default: Date.now}
-  , cover_photo: { type: ObjectId, default: null } // 封面照片
+  , cover_photo: String // 封面照片url
   , visit_count: { type: Number, default: 0 } // 浏览数
   , weight: { type: Number, default: 1 } // 权重[0-65535]
   , status: { type: Number, default: -1 } // 状态: 0删除 -1待审 1正常
@@ -23,7 +23,7 @@ var TopicSchema = new Schema({
   , photos: Array
   
   // photos_des: {photo_id: description}
-  , photos_des: Array
+  //, photos_des: Array
 })
 
 /**

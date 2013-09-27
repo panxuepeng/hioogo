@@ -1,0 +1,23 @@
+{
+  "name": "pagination",
+  "title": "Pagination",
+  "description": "The best jQuery plugin ever.",
+  "version": "0.3.0",
+  "homepage": "https://github.com/wenzhixin/bootstrap-pagination",
+  "author": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/panxuepeng/pagination.git"
+  },
+  "bugs": "https://github.com/panxuepeng/pagination/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/panxuepeng/pagination/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}

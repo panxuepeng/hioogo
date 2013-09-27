@@ -8,23 +8,25 @@ var users = C('users', {
 	login: function(req, res) {
 		var post = req.body
 		var username = post.username.trim()
-		var password = post.password.trim()
-	
-		User.findOne({ username: username,  password: password}).exec(function (err, user) {
+		var password = utils.md5(post.password.trim())
+		
+		User.findOne({ username: username}).exec(function (err, result) {
 			if (err) {
-				res.jsonp([500, err]);
-			} else if (!user) {
-				res.jsonp([404, '用户不存在']);
+				res.jsonp([500, err])
+			} else if ( !result ) {
+				res.jsonp([404, '用户不存在或密码错误'])
+			} else if ( result.password !== password ) {
+				res.jsonp([405, '用户不存在或密码错误'])
 			} else {
-				auth.login(req, res, user);
-				res.jsonp([200, '登录成功']);
+				auth.login(req, res, result)
+				res.jsonp([200, '登录成功'])
 			}
 		});
 	},
 	
 	logout: function(req, res) {
-		auth.logout(req, res);
-		res.jsonp([200, '退出成功']);
+		auth.logout(req, res)
+		res.jsonp([200, '退出成功'])
 	},
 	
 	create: function(req, res) {
@@ -59,8 +61,13 @@ var users = C('users', {
 	},
 	
 	show: function(req, res) {
-		var user = auth.get(req);
-		user ? res.jsonp([200, user])
+		var user = auth.get(req)
+		var data = {
+			username: user.username
+			, updated_at: user.updated_at
+			, role: user.role
+		}
+		user ? res.jsonp([200, data])
 			: res.jsonp([404, '用户不存在'])
 	}
 });

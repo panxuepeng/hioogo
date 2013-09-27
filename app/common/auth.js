@@ -12,7 +12,8 @@ exports.get = function (req) {
  * 登录
  */
 exports.login = function (req, res, user) {
-	utils.setCookie(req, res, authCookieName, user);
+	delete user.password
+	utils.setCookie(req, res, authCookieName, user)
 }
 exports.logout = function (req, res) {
 	utils.setCookie(req, res, authCookieName, '', -1);

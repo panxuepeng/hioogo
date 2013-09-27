@@ -15,6 +15,8 @@
 .project
 .settings/
 node_modules/
+buildlog/
+seajslib/node_modules/
 photo/
 public/photo/
 _site/
