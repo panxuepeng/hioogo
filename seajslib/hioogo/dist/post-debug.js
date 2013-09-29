@@ -59,6 +59,7 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                     $("img[photo_id]").each(function() {
                         data.photoList.push($(this).attr("photo_id"));
                     });
+                    data.cover_photo = $("#uploadlist img").eq(0).attr("src");
                     $.post(Config.serverLink("topics"), data, function(result) {
                         if (result[0] === 200) {
                             var topicid = result[1].topicid;
@@ -83,6 +84,10 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
             if (!$.trim(form.find(":text[name=title]").val())) {
                 alert("请输入标题");
                 form.find(":text[name=title]").focus();
+                return false;
+            }
+            if (!$("#uploadlist img").length) {
+                alert("还没有上传任何图片");
                 return false;
             }
             return true;

@@ -50,24 +50,18 @@
 </div>
 
 <ul class="thumbnails">
-
-</ul>
-</script>
-
-
-<script type="text/html" id="tmpl-photolistview" class="hide">
-<% for (var i = 0; i < list.length; i++) { %>
-	<li class="span3" id="photo-<%=list[i]["photo_id"]%>">
+<% for (var i = 0; i < photos.length; i++) { %>
+	<li class="span3" id="photo-<%=photos[i]["_id"]%>">
 		<div class="thumbnail">
 			<div class="photo">
-				<img name="photoview" photoid="<%=list[i]["photo_id"]%>" description="<%=list[i]["description"]%>" src="<%=list[i]["photo"]%>" id="photo-<%=i%>" index="<%=i%>" shooting_time="<%=list[i]["shooting_time"]%>"/>
+				<img name="photoview" photoid="<%=photos[i]["_id"]%>" description="<%=photos[i]["description"]%>" src="<%=photos[i]["mark"]%>" id="photo-<%=i%>" index="<%=i%>" shooting_time="<%=photos[i]["shooting_time"]%>"/>
 			</div>
 			
 			<p class="mt5">
-				<% if( list[i]["description"] ){ %>
-				<span id="description-<%=list[i]["photo_id"]%>"><%=list[i]["description"]%></span>
+				<% if( photos[i]["description"] ){ %>
+				<span id="description-<%=photos[i]["_id"]%>"><%=photos[i]["description"]%></span>
 				<% } %>
-				<span>（拍摄时间：<%=list[i]["shooting_time"]%>）</span>
+				<span>（拍摄时间：<%=photos[i]["shooting_time"]%>）</span>
 			</p>
 			
 			<% if( isauthor ){ %>
@@ -77,14 +71,15 @@
 					<span class="caret"></span>
 				</button>
 				  <ul class="dropdown-menu">
-					<li><a name="photo-remove" photoid="<%=list[i]["photo_id"]%>">删除此照片</a></li>
-					<li><a name="photo-unlink" photoid="<%=list[i]["photo_id"]%>">将此照片移出主题</a></li>
+					<li><a name="photo-remove" photoid="<%=photos[i]["_id"]%>">删除此照片</a></li>
+					<li><a name="photo-unlink" photoid="<%=photos[i]["_id"]%>">将此照片移出主题</a></li>
 				  </ul>
 			</div>
 			<% } %>
 		</div>
 	</li>
 <% } %>
+</ul>
 </script>
 
 </div>

@@ -18,25 +18,7 @@ control.index = function(req, res) {
 		if (err) {
 			res.jsonp([500, err])
 		} else {
-			//var ids = []
-			
-			topics.forEach(function(topic){
-				topic.cover_photo = topic.cover_photo || 'default'
-				//ids.push(topic.cover_photo)
-			})
-			/*
-			Photo.find({_id: {'$in':ids}}).exec(function(err, photos){
-				if (err) {
-					res.jsonp([500, err])
-				} else {
-					photos.forEach(function(photo){
-						photo.url = Photo.getPhotoUrl(photo)
-					})
-					
-					res.jsonp([200, topics])
-				}
-			})
-			*/
+			res.jsonp([200, topics])
 		}
 	})
 }
@@ -45,13 +27,28 @@ control.index = function(req, res) {
 control.show = function(req, res) {
 	var topicid = req.params.topicid
 	
-	Topic.findOne({ _id: topicid}).exec(function(err, result) {
+	Topic.findOne({ _id: topicid}).exec(function(err, topics) {
 		if (err) {
 			res.jsonp([500, err])
-		} else if (!result) {
+		} else if (!topics) {
 			res.jsonp([404, '主题不存在'])
 		} else {
-			res.jsonp([200, result]);
+			// 获取图片数据
+			Photo.find({_id: {'$in': topics.photos}}).exec(function(err2, photos){
+				
+				_.each(photos, function(photo){
+					photo['mark'] = Photo.getPhotoUrl(photo)
+					
+				// 为啥url这个属性加不上呢？
+				//	photo['url'] = Photo.getPhotoUrl(photo)
+				//	console.dir(photo)
+				//	console.log(photo.url)
+				//	console.dir(photo)
+				})
+				topics.photos = photos
+				res.jsonp([200, topics]);
+			})
+			
 		}
 	})
 }
@@ -91,7 +88,7 @@ control.create = function(req, res) {
 		, status: 1
 		, photos: photoList
 	};
-
+	//console.log(data)
 	var topic = new Topic(data);
 
 	topic.save(function (err, result) {

@@ -21,7 +21,7 @@
 <% for (var i = 0; i < list.length; i++) { %>
 	<li class="span3">
 		<div class="thumbnail">
-			<a href="#/photo/<%=list[i]["topicid"] %>">
+			<a href="#/photo/<%=list[i]["_id"] %>">
 				<img src="<%=list[i]["cover_photo"]%>"/>
 			</a>
 			<h4><%=list[i]["title"]%> (<%=list[i]["photo_count"]%>张)</h4>
