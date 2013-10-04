@@ -1,7 +1,7 @@
-/* 2013-09-29 */
+/* 2013-10-03 */
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common-debug", [ "./config-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug");
+define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug");
     // 页面首次加载时都会执行一次
     function init() {
         $.getJSON(Config.serverLink("user"), function(result) {
@@ -176,7 +176,7 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
         return url;
     };
 });
-define("hioogo/0.1.0/default.player-debug", [ "./common-debug", "./config-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/default.player-debug", [ "./common-debug", "./config-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
     var common = require("./common-debug"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
     // 关闭大图
     dom.on("click", "#player-close", function() {
@@ -314,6 +314,10 @@ define("hioogo/0.1.0/default.player-debug", [ "./common-debug", "./config-debug"
             img.onload = function() {
                 // 图片加载完成之后，如用户没有切换其他图片，则正常显示
                 if (currentIndex === img.index) {
+                    current = {
+                        height: img.height,
+                        width: img.width
+                    };
                     dom.on("mousewheel.bigphoto", function(e) {
                         //console.log(e.originalEvent.wheelDelta);
                         // 向上滚动大于0
@@ -325,10 +329,6 @@ define("hioogo/0.1.0/default.player-debug", [ "./common-debug", "./config-debug"
                     if (img.height > height + 100) {
                         var offset = (height - img.height) / 2;
                         ismoving = true;
-                        current = {
-                            height: img.height,
-                            width: img.width
-                        };
                         o.animate({
                             "background-position-y": offset
                         }, 3e3, function() {
@@ -379,10 +379,10 @@ define("hioogo/0.1.0/default.player-debug", [ "./common-debug", "./config-debug"
         return false;
     }
 });
-define("hioogo/0.1.0/hioogo-debug", [ "./router-debug", "./config-debug", "./common-debug" ], function(require, exports) {
+define("hioogo/0.1.0/hioogo-debug", [ "./router-debug", "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports) {
     var router = require("./router-debug");
 });
-define("hioogo/0.1.0/login-debug", [ "md5/1.0.0/md5-debug", "./config-debug", "./common-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/login-debug", [ "md5/1.0.0/md5-debug", "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("./config-debug"), common = require("./common-debug");
     exports.show = function() {};
     exports.init = function() {
@@ -405,8 +405,8 @@ define("hioogo/0.1.0/login-debug", [ "md5/1.0.0/md5-debug", "./config-debug", ".
         });
     };
 });
-define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug"), common = require("./common-debug"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate-debug"), currentTopicid = 0, dom = $(document);
+define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), common = require("./common-debug"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate-debug"), currentTopicid = "", dom = $(document);
     require.async("./" + Config.player, function(player) {
         photoPlayer = player;
     });
@@ -417,54 +417,25 @@ define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttem
             initData(Config.cache.topic[id]);
         } else {
             $.getJSON(Config.serverLink("topics/" + id), function(data) {
-                initData(data);
-                Config.cache.topic[currentTopicid] = data;
+                if (data[0] === 200) {
+                    initData(data[1]);
+                    Config.cache.topic[currentTopicid] = data[1];
+                } else {
+                    seajs.log(data);
+                }
             });
         }
     };
-    exports.init = function(id) {
-        // init ...
-        dom.on("click", "[name=photo-edit]", function() {
-            location = "/#/post/" + currentTopicid;
-        });
-        // [显示/隐藏]编辑按钮
-        dom.on("mouseover.photo", ".thumbnail", function() {
-            $(this).find(".photo_edit").show();
-        }).on("mouseleave.photo", ".thumbnail", function() {
-            $(this).find(".photo_edit").hide();
-        });
-        // 删除照片
-        dom.on("click.photo", '[name="photo-remove"]', function() {
-            if (confirm("确认彻底删除此照片吗？")) {
-                var o = $(this);
-                o.closest("li[id^=photo]").hide();
-                remove("remove-photo", o.attr("photoid"));
-            }
-        }).on("click.photo", '[name="photo-unlink"]', function() {
-            if (confirm("确认移除此照片吗？")) {
-                var o = $(this);
-                o.closest("li[id^=photo]").hide();
-                remove("unlink-photo", o.attr("photoid"));
-            }
-        });
-        // 删除主题
-        dom.on("click.topic-remove", '[name="topic-remove"]', function() {
-            if (confirm("确认删除此主题和其所有照片吗？")) {
-                var o = $(this);
-                remove("remove-topic");
-                Config.go(Config.home());
-            }
-        });
-        common.lazyload();
-    };
     // 编辑图片描述
-    $(document).on("click", "button[name=photo-edit]", function() {
-        var html = template.render("tmpl-photo-edit", getEditTmplData($(this)));
+    exports["on-photoedit"] = function($el) {
+        var html = template.render("tmpl-photo-edit", getEditTmplData($el));
         common.dialog({
             title: "编辑照片描述",
             width: 600,
             content: html,
             onshown: function(dialog) {
+                // 在弹出显示时
+                // 如果文本框是空的，将光标定位到文本框
                 var o = dialog.find("textarea");
                 if (!$.trim(o.val())) o.focus();
             },
@@ -472,11 +443,82 @@ define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttem
                 postPhotoDesc(dialog);
             }
         });
-    });
+    };
+    // 编辑主题
+    exports["on-topicedit"] = function() {
+        location = "/#/post/" + currentTopicid;
+    };
+    // 删除主题
+    exports["on-topicremove"] = function(o) {
+        if (confirm("确认删除此主题和其所有照片吗？")) {
+            var url = Config.serverLink("topics/" + currentTopicid);
+            $.ajax({
+                type: "DELETE",
+                dateType: "json",
+                url: url
+            }).success(function(result) {
+                if (result[0] === 200) {
+                    // 删除主题的缓存信息
+                    Config.cache.topic[currentTopicid] = null;
+                    Config.go(Config.home());
+                } else {
+                    alert(result[1]);
+                }
+            }).error(function(xhr, status) {
+                alert("出现错误，请稍候再试。");
+            });
+        }
+    };
+    // 推荐主题
+    exports["on-topicrecommend"] = function(o) {
+        var url = Config.serverLink("topics/" + currentTopicid);
+        $.ajax({
+            type: "PUT",
+            dateType: "json",
+            url: url
+        }).success(function(result) {
+            if (result[0] === 200) {} else {
+                alert(result[1]);
+            }
+        }).error(function(xhr, status) {
+            alert("出现错误，请稍候再试。");
+        });
+    };
+    // 删除照片
+    exports["on-photoremove"] = function(o) {
+        if (confirm("确认彻底删除此照片吗？")) {
+            var photo = o.closest("li[id^=photo]");
+            photo.hide();
+            var url = Config.serverLink("photos/" + o.attr("photoid"));
+            $.ajax({
+                type: "DELETE",
+                dateType: "json",
+                url: url
+            }).success(function(result) {
+                if (result[0] === 200) {} else {
+                    alert(result[1]);
+                    photo.show();
+                }
+            }).error(function(xhr, status) {
+                alert("出现错误，请稍候再试。");
+                photo.show();
+            });
+        }
+    };
+    exports.init = function(id) {
+        // init ...
+        // [显示/隐藏]编辑按钮
+        dom.on("mouseover.photo", ".thumbnail", function() {
+            $(this).find(".photo_edit").show();
+        }).on("mouseleave.photo", ".thumbnail", function() {
+            $(this).find(".photo_edit").hide();
+        });
+        common.lazyload();
+    };
     function initData(data) {
         var html = "";
-        if (data && typeof data === "object" && data[1]) {
-            html = template.render("tmpl-photoview", data[1]);
+        if (data && typeof data === "object") {
+            html = template.render("tmpl-photoview", data);
         }
         $("#photoview").html(html);
         setTimeout(function() {
@@ -496,9 +538,15 @@ define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttem
     // 提交照片描述
     function postPhotoDesc(dialog) {
         var data = dialog.find("form").serialize();
-        $.post(Config.serverLink("photo/edit"), data, function(result) {
+        var photoid = dialog.find(":hidden[name=photoid]").val();
+        var url = Config.serverLink("photos/" + photoid);
+        $.ajax({
+            type: "PUT",
+            data: data,
+            dateType: "json",
+            url: url
+        }).success(function(result) {
             if (result[0] === 200) {
-                var photoid = dialog.find(":hidden[name=photoid]").val();
                 var description = dialog.find("textarea").val();
                 // 将编辑后的描述信息，写到照片属性上
                 $("img[photoid=" + photoid + "]").attr("description", description);
@@ -508,11 +556,11 @@ define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttem
             } else {
                 alert(result[1]);
             }
-        }, "json").error(function(xhr, status) {
-            alert(status);
+        }).error(function(xhr, status) {
+            alert("出现错误，请稍候再试。");
         });
     }
-    // 删除照片/主题
+    // 删除照片
     function remove(action, photoid) {
         action = action || "remove-photo";
         photoid = photoid || 0;
@@ -526,7 +574,6 @@ define("hioogo/0.1.0/photo-debug", [ "./config-debug", "./common-debug", "arttem
                 $("#photo-" + photoid).show();
             }
         }, "json").error(function(xhr, status) {
-            alert(status);
             $("#photo-" + photoid).show();
         });
     }
@@ -545,6 +592,8 @@ define("hioogo/0.1.0/photolist-debug", [ "./config-debug", "arttemplate/2.0.1/ar
                     };
                     initData(data);
                     Config.cache.topiclist["news"] = data;
+                } else {
+                    seajs.log(result);
                 }
             });
         }
@@ -575,7 +624,7 @@ define("hioogo/0.1.0/photolist-debug", [ "./config-debug", "arttemplate/2.0.1/ar
     // 获取主题封面照片
     function getPhotos() {}
 });
-define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-debug", "./config-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-debug", "./config-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload-debug");
     var uploader, common = require("./common-debug"), Config = require("./config-debug");
     exports.show = function(id) {
@@ -587,11 +636,15 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                 initData(Config.cache.topic[id]);
             } else {
                 // 刷新页面操作
-                $.getJSON(Config.serverLink("photo/" + id), function(data) {
-                    if (data.isauthor) {
-                        initData(data);
+                $.getJSON(Config.serverLink("topics/" + id), function(data) {
+                    if (data[0] === 200) {
+                        if (data[1].isauthor) {
+                            initData(data[1]);
+                        } else {
+                            location = "/#/post";
+                        }
                     } else {
-                        location = "/#/post";
+                        seajs.log(data);
                     }
                 });
             }
@@ -600,15 +653,15 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
             Form.reset();
         }
     };
-    function initData(data) {
+    function initData(topic) {
         var postForm = $("form[name=post]");
-        postForm.find("input[name=topicid]").val(data.topicid);
-        postForm.find("input[name=title]").val(data.title);
-        postForm.find("textarea[name=description]").val(data.description);
-        var html = [], rows = data.list;
-        for (var i = 0, len = rows.length; i < len; i++) {
-            var r = rows[i];
-            html.push('<div class="span2"><img src="' + r.photo + '" photo_id="' + r.photo_id + '"/></div>');
+        postForm.find("input[name=topicid]").val(topic._id);
+        postForm.find("input[name=title]").val(topic.title);
+        postForm.find("textarea[name=description]").val(topic.description);
+        var html = [], photos = topic.photos;
+        for (var i = 0, len = photos.length; i < len; i++) {
+            var photo = photos[i];
+            html.push('<div class="span2"><img src="' + photo.url + '" photo_id="' + photo._id + '"/></div>');
         }
         $("#uploadlist").html(html.join(""));
         $("#post-submit").attr({
@@ -637,7 +690,33 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                         data.photoList.push($(this).attr("photo_id"));
                     });
                     data.cover_photo = $("#uploadlist img").eq(0).attr("src");
-                    $.post(Config.serverLink("topics"), data, function(result) {
+                    /*
+					$.post(Config.serverLink('topics'), data, function( result ){
+						if( result[0] === 200 ){
+							var topicid = result[1].topicid;
+							self.success(topicid);
+							
+							// 删除主题的缓存信息
+							Config.cache.topic[topicid] = null;
+						}else{
+							self.error(result[1]);
+						}
+					}, 'json').error(function(xhr, status){
+						alert('出现错误，请稍候再试。');
+					});
+					*/
+                    var type = "POST", url = Config.serverLink("topics");
+                    // 修改需用 PUT 方式提交数据
+                    if (data.topicid) {
+                        type = "PUT";
+                        url = Config.serverLink("topics/" + data.topicid);
+                    }
+                    $.ajax({
+                        type: type,
+                        dateType: "json",
+                        url: url,
+                        data: data
+                    }).success(function(result) {
                         if (result[0] === 200) {
                             var topicid = result[1].topicid;
                             self.success(topicid);
@@ -646,7 +725,7 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                         } else {
                             self.error(result[1]);
                         }
-                    }, "json").error(function(xhr, status) {
+                    }).error(function(xhr, status) {
                         alert("出现错误，请稍候再试。");
                     });
                 }
@@ -819,9 +898,8 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
         }
     };
 });
-define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug"), common = require("./common-debug"), actionName = Config.index, Path = [], Params = {}, Actions = {};
-    window.jQuery = window.jQuery || $;
+define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), common = require("./common-debug"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
     // 加载一些普通的公共的 js 文件
     // 他们不是seajs模块，如 bootstrap.min.js 等
     getScript(Config.commonScript);
@@ -837,13 +915,18 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
     $(window).bind("hashchange", function() {
         routerInit();
     });
+    // 响应 controller 事件
+    $(document).delegate("[data-on]", "click", function() {
+        var o = $(this), name = o.data("on");
+        Actions[Config.action]["on-" + name](o);
+    });
     //===========================================================================
     /**
-  * 页面初始化
-  *   下列情况下执行：
-  *   1、页面首次加载后
-  *   2、hashchange事件触发后
-  */
+	* 页面初始化
+	*   下列情况下执行：
+	*   1、页面首次加载后
+	*   2、hashchange事件触发后
+	*/
     function routerInit(callback) {
         var action = getAction();
         if (Actions[action]) {
@@ -864,22 +947,22 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         $.isFunction(callback) && callback();
     }
     /**
-  * App资源预加载，在初始化之后执行一次
-  * 
-  */
+	* App资源预加载，在初始化之后执行一次
+	* 
+	*/
     function preload() {
         var pages = Config.pages;
         // 预加载页面模板
         for (var name in pages) {
-            if (name !== actionName) {
+            if (name !== Config.action) {
                 $.get(Config.getTmplPath(name));
             }
         }
     }
     /**
-  * 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
-  * 
-  */
+	* 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
+	* 
+	*/
     function getPath(path) {
         if (path.substr(0, 1) === "!") {
             path = path.slice(1);
@@ -891,9 +974,9 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         return arr;
     }
     /**
-  * 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
-  * 
-  */
+	* 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
+	* 
+	*/
     function getAction() {
         var $_GET, part, action, hash = location.hash.slice(1).replace("?", "&");
         if (hash) {
@@ -909,14 +992,13 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         if (!action || !Config.pages[action]) {
             action = Config.index;
         }
-        actionName = action;
-        Config.action = actionName;
+        Config.action = action;
         return action;
     }
     /**
-  * 加载普通公共js
-  * 
-  */
+	* 加载普通公共js
+	* 
+	*/
     function getScript(arr) {
         for (var i = 0, length = arr.length; i < length; i += 1) {
             $.ajax({

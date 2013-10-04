@@ -1,6 +1,6 @@
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common", [ "./config" ], function(require, exports, module) {
-    var Config = require("./config");
+define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
+    var Config = require("./config"), bootstrap = require("bootstrap/2.3.2/bootstrap");
     // 页面首次加载时都会执行一次
     function init() {
         $.getJSON(Config.serverLink("user"), function(result) {

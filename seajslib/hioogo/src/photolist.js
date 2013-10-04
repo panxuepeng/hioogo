@@ -13,8 +13,10 @@
 				var data = {
 					list: result[1]
 				}
-				initData(data);
-				Config.cache.topiclist['news'] = data;
+				initData(data)
+				Config.cache.topiclist['news'] = data
+			} else {
+				seajs.log(result)
 			}
 		});
 	}

@@ -1,5 +1,5 @@
-define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
-    var Config = require("./config"), common = require("./common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = 0, dom = $(document);
+define("hioogo/0.1.0/photo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
+    var Config = require("./config"), common = require("./common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = "", dom = $(document);
     require.async("./" + Config.player, function(player) {
         photoPlayer = player;
     });
@@ -10,54 +10,25 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttem
             initData(Config.cache.topic[id]);
         } else {
             $.getJSON(Config.serverLink("topics/" + id), function(data) {
-                initData(data);
-                Config.cache.topic[currentTopicid] = data;
+                if (data[0] === 200) {
+                    initData(data[1]);
+                    Config.cache.topic[currentTopicid] = data[1];
+                } else {
+                    seajs.log(data);
+                }
             });
         }
     };
-    exports.init = function(id) {
-        // init ...
-        dom.on("click", "[name=photo-edit]", function() {
-            location = "/#/post/" + currentTopicid;
-        });
-        // [显示/隐藏]编辑按钮
-        dom.on("mouseover.photo", ".thumbnail", function() {
-            $(this).find(".photo_edit").show();
-        }).on("mouseleave.photo", ".thumbnail", function() {
-            $(this).find(".photo_edit").hide();
-        });
-        // 删除照片
-        dom.on("click.photo", '[name="photo-remove"]', function() {
-            if (confirm("确认彻底删除此照片吗？")) {
-                var o = $(this);
-                o.closest("li[id^=photo]").hide();
-                remove("remove-photo", o.attr("photoid"));
-            }
-        }).on("click.photo", '[name="photo-unlink"]', function() {
-            if (confirm("确认移除此照片吗？")) {
-                var o = $(this);
-                o.closest("li[id^=photo]").hide();
-                remove("unlink-photo", o.attr("photoid"));
-            }
-        });
-        // 删除主题
-        dom.on("click.topic-remove", '[name="topic-remove"]', function() {
-            if (confirm("确认删除此主题和其所有照片吗？")) {
-                var o = $(this);
-                remove("remove-topic");
-                Config.go(Config.home());
-            }
-        });
-        common.lazyload();
-    };
     // 编辑图片描述
-    $(document).on("click", "button[name=photo-edit]", function() {
-        var html = template.render("tmpl-photo-edit", getEditTmplData($(this)));
+    exports["on-photoedit"] = function($el) {
+        var html = template.render("tmpl-photo-edit", getEditTmplData($el));
         common.dialog({
             title: "编辑照片描述",
             width: 600,
             content: html,
             onshown: function(dialog) {
+                // 在弹出显示时
+                // 如果文本框是空的，将光标定位到文本框
                 var o = dialog.find("textarea");
                 if (!$.trim(o.val())) o.focus();
             },
@@ -65,11 +36,82 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttem
                 postPhotoDesc(dialog);
             }
         });
-    });
+    };
+    // 编辑主题
+    exports["on-topicedit"] = function() {
+        location = "/#/post/" + currentTopicid;
+    };
+    // 删除主题
+    exports["on-topicremove"] = function(o) {
+        if (confirm("确认删除此主题和其所有照片吗？")) {
+            var url = Config.serverLink("topics/" + currentTopicid);
+            $.ajax({
+                type: "DELETE",
+                dateType: "json",
+                url: url
+            }).success(function(result) {
+                if (result[0] === 200) {
+                    // 删除主题的缓存信息
+                    Config.cache.topic[currentTopicid] = null;
+                    Config.go(Config.home());
+                } else {
+                    alert(result[1]);
+                }
+            }).error(function(xhr, status) {
+                alert("出现错误，请稍候再试。");
+            });
+        }
+    };
+    // 推荐主题
+    exports["on-topicrecommend"] = function(o) {
+        var url = Config.serverLink("topics/" + currentTopicid);
+        $.ajax({
+            type: "PUT",
+            dateType: "json",
+            url: url
+        }).success(function(result) {
+            if (result[0] === 200) {} else {
+                alert(result[1]);
+            }
+        }).error(function(xhr, status) {
+            alert("出现错误，请稍候再试。");
+        });
+    };
+    // 删除照片
+    exports["on-photoremove"] = function(o) {
+        if (confirm("确认彻底删除此照片吗？")) {
+            var photo = o.closest("li[id^=photo]");
+            photo.hide();
+            var url = Config.serverLink("photos/" + o.attr("photoid"));
+            $.ajax({
+                type: "DELETE",
+                dateType: "json",
+                url: url
+            }).success(function(result) {
+                if (result[0] === 200) {} else {
+                    alert(result[1]);
+                    photo.show();
+                }
+            }).error(function(xhr, status) {
+                alert("出现错误，请稍候再试。");
+                photo.show();
+            });
+        }
+    };
+    exports.init = function(id) {
+        // init ...
+        // [显示/隐藏]编辑按钮
+        dom.on("mouseover.photo", ".thumbnail", function() {
+            $(this).find(".photo_edit").show();
+        }).on("mouseleave.photo", ".thumbnail", function() {
+            $(this).find(".photo_edit").hide();
+        });
+        common.lazyload();
+    };
     function initData(data) {
         var html = "";
-        if (data && typeof data === "object" && data[1]) {
-            html = template.render("tmpl-photoview", data[1]);
+        if (data && typeof data === "object") {
+            html = template.render("tmpl-photoview", data);
         }
         $("#photoview").html(html);
         setTimeout(function() {
@@ -89,9 +131,15 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttem
     // 提交照片描述
     function postPhotoDesc(dialog) {
         var data = dialog.find("form").serialize();
-        $.post(Config.serverLink("photo/edit"), data, function(result) {
+        var photoid = dialog.find(":hidden[name=photoid]").val();
+        var url = Config.serverLink("photos/" + photoid);
+        $.ajax({
+            type: "PUT",
+            data: data,
+            dateType: "json",
+            url: url
+        }).success(function(result) {
             if (result[0] === 200) {
-                var photoid = dialog.find(":hidden[name=photoid]").val();
                 var description = dialog.find("textarea").val();
                 // 将编辑后的描述信息，写到照片属性上
                 $("img[photoid=" + photoid + "]").attr("description", description);
@@ -101,11 +149,11 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttem
             } else {
                 alert(result[1]);
             }
-        }, "json").error(function(xhr, status) {
-            alert(status);
+        }).error(function(xhr, status) {
+            alert("出现错误，请稍候再试。");
         });
     }
-    // 删除照片/主题
+    // 删除照片
     function remove(action, photoid) {
         action = action || "remove-photo";
         photoid = photoid || 0;
@@ -119,7 +167,6 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "arttemplate/2.0.1/arttem
                 $("#photo-" + photoid).show();
             }
         }, "json").error(function(xhr, status) {
-            alert(status);
             $("#photo-" + photoid).show();
         });
     }

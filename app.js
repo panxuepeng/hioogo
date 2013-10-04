@@ -15,7 +15,7 @@ function load(dirname) {
 	})
 }
 
-// Òòcontroller »áÓÃµÄ modelÎÄ¼ş£¬models ĞèÒªÌáÇ°ÓÚ controllers ¼ÓÔØ
+// å› controller ä¼šç”¨çš„ modelæ–‡ä»¶ï¼Œmodels éœ€è¦æå‰äº controllers åŠ è½½
 load('models')
 load('controllers')
 
@@ -24,7 +24,11 @@ require(confPath+'/express')(app, config)
 require(confPath+'/routes')(app, Controller)
 
 // Bootstrap db connection
-mongoose.connect(config.db)
+mongoose.connect(config.db, function(err){
+	if (err) {
+		console.log('mongodb è¿æ¥å¤±è´¥')
+	}
+})
 
 app.listen(config.port)
 console.log('hioogo started on port '+config.port)

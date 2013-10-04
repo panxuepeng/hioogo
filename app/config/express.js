@@ -19,11 +19,10 @@ module.exports = function (app, config) {
 
 	// cookieParser should be above session
 	app.use(express.cookieParser())
-
+	
 	// 所有的非GET请求，除了登录验证 post /login
 	//都需要登录验证
 	// 这里统一处理，路由设置文件不再需要逐个处理
-
 	app.use(function(req, res, next){
 		req.time = new Date
 		

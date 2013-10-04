@@ -1,4 +1,4 @@
-define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-debug", "./config-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-debug", "./config-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload-debug");
     var uploader, common = require("./common-debug"), Config = require("./config-debug");
     exports.show = function(id) {
@@ -10,11 +10,15 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                 initData(Config.cache.topic[id]);
             } else {
                 // 刷新页面操作
-                $.getJSON(Config.serverLink("photo/" + id), function(data) {
-                    if (data.isauthor) {
-                        initData(data);
+                $.getJSON(Config.serverLink("topics/" + id), function(data) {
+                    if (data[0] === 200) {
+                        if (data[1].isauthor) {
+                            initData(data[1]);
+                        } else {
+                            location = "/#/post";
+                        }
                     } else {
-                        location = "/#/post";
+                        seajs.log(data);
                     }
                 });
             }
@@ -23,15 +27,15 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
             Form.reset();
         }
     };
-    function initData(data) {
+    function initData(topic) {
         var postForm = $("form[name=post]");
-        postForm.find("input[name=topicid]").val(data.topicid);
-        postForm.find("input[name=title]").val(data.title);
-        postForm.find("textarea[name=description]").val(data.description);
-        var html = [], rows = data.list;
-        for (var i = 0, len = rows.length; i < len; i++) {
-            var r = rows[i];
-            html.push('<div class="span2"><img src="' + r.photo + '" photo_id="' + r.photo_id + '"/></div>');
+        postForm.find("input[name=topicid]").val(topic._id);
+        postForm.find("input[name=title]").val(topic.title);
+        postForm.find("textarea[name=description]").val(topic.description);
+        var html = [], photos = topic.photos;
+        for (var i = 0, len = photos.length; i < len; i++) {
+            var photo = photos[i];
+            html.push('<div class="span2"><img src="' + photo.url + '" photo_id="' + photo._id + '"/></div>');
         }
         $("#uploadlist").html(html.join(""));
         $("#post-submit").attr({
@@ -60,7 +64,33 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                         data.photoList.push($(this).attr("photo_id"));
                     });
                     data.cover_photo = $("#uploadlist img").eq(0).attr("src");
-                    $.post(Config.serverLink("topics"), data, function(result) {
+                    /*
+					$.post(Config.serverLink('topics'), data, function( result ){
+						if( result[0] === 200 ){
+							var topicid = result[1].topicid;
+							self.success(topicid);
+							
+							// 删除主题的缓存信息
+							Config.cache.topic[topicid] = null;
+						}else{
+							self.error(result[1]);
+						}
+					}, 'json').error(function(xhr, status){
+						alert('出现错误，请稍候再试。');
+					});
+					*/
+                    var type = "POST", url = Config.serverLink("topics");
+                    // 修改需用 PUT 方式提交数据
+                    if (data.topicid) {
+                        type = "PUT";
+                        url = Config.serverLink("topics/" + data.topicid);
+                    }
+                    $.ajax({
+                        type: type,
+                        dateType: "json",
+                        url: url,
+                        data: data
+                    }).success(function(result) {
                         if (result[0] === 200) {
                             var topicid = result[1].topicid;
                             self.success(topicid);
@@ -69,7 +99,7 @@ define("hioogo/0.1.0/post-debug", [ "plupload/1.5.6/plupload-debug", "./common-d
                         } else {
                             self.error(result[1]);
                         }
-                    }, "json").error(function(xhr, status) {
+                    }).error(function(xhr, status) {
                         alert("出现错误，请稍候再试。");
                     });
                 }

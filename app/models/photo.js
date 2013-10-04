@@ -24,6 +24,7 @@ var PhotoSchema = new Schema({
 	, created_at: {type: Date, default: Date.now}
 	, updated_at: {type: Date, default: Date.now}
 	, mark: { type: String, unique: true } // md5(二进制内容)
+	, url: String // 图片的url
 	, shooting_time: Date // 拍摄时间
 	, filesize: Number // 文件大小，单位kb
 	, width: Number
@@ -65,12 +66,15 @@ PhotoSchema.statics = {
 		var Photo = mongoose.model('Photo')
 
 		var photo = new Photo({
-			user_id: data.uid
+			user_id: data.user_id
 			, mark: data.photoMd5
+			, created_at: data.created_at
+			, updated_at: data.updated_at
 			, shooting_time: exif['Date Time'] // 拍摄时间
 			, filesize: Math.round(data.photoData.length/1024) // 文件大小，单位k
 			, width: exif.width
 			, height: exif.height
+			, status: data.status
 			, exif: {
 				make: exif.Make // 生成厂商
 				, model: exif.Model // 型号

@@ -8,7 +8,7 @@
  * 5.[左右]方向键进入[上下]一张，[上下]方向键[上下]移动图片
  * 
  */
-define("hioogo/0.1.0/default.player", [ "./common", "./config" ], function(require, exports, module) {
+define("hioogo/0.1.0/default.player", [ "./common", "./config", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
     var common = require("./common"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
     // 关闭大图
     dom.on("click", "#player-close", function() {
@@ -146,6 +146,10 @@ define("hioogo/0.1.0/default.player", [ "./common", "./config" ], function(requi
             img.onload = function() {
                 // 图片加载完成之后，如用户没有切换其他图片，则正常显示
                 if (currentIndex === img.index) {
+                    current = {
+                        height: img.height,
+                        width: img.width
+                    };
                     dom.on("mousewheel.bigphoto", function(e) {
                         //console.log(e.originalEvent.wheelDelta);
                         // 向上滚动大于0
@@ -157,10 +161,6 @@ define("hioogo/0.1.0/default.player", [ "./common", "./config" ], function(requi
                     if (img.height > height + 100) {
                         var offset = (height - img.height) / 2;
                         ismoving = true;
-                        current = {
-                            height: img.height,
-                            width: img.width
-                        };
                         o.animate({
                             "background-position-y": offset
                         }, 3e3, function() {

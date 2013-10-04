@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>看自然</title>
 <script>
 var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date() - this.begin}};
 </script>
-<link rel="stylesheet" href="dist/bootstrap/2.3.1/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="dist/bootstrap/2.3.2/css/bootstrap.min.css"/>
 <link rel="stylesheet" href="assets/css/main.css"/>
-<link rel="stylesheet" href="dist/bootstrap/2.3.1/css/bootstrap-responsive.min.css"/>
+<link rel="stylesheet" href="dist/bootstrap/2.3.2/css/bootstrap-responsive.min.css"/>
 <!--[if IE 6]>
   <link href="assets/ie6/ie6.min.css" rel="stylesheet"/>
 <![endif]-->
@@ -21,7 +22,7 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 <script>_Timestamp.log('beginBody');</script>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
-    <div class="container-fluid">
+    <div class="container">
 		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
@@ -30,13 +31,14 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 		<a class="brand">看自然</a>
 		<div class="nav-collapse">
 			<ul class="nav" id="photo-tags">
-			  <li class="active"><a href="#/photolist">最新主题</a></li>
-			  <li><a href="#/photolist">推荐主题</a></li>
+			  <li class="active"><a href="#/photolist">首页</a></li>
 			</ul>
 			
 			<a id="login" href="#/login" class="btn pull-right"><i class="icon-user"></i> 登录</a>
 			<div id="post" class="btn-group pull-right hide">
-				<button class="btn btn-info" onclick="location='/#/post'">创建照片主题</button>
+				<button class="btn btn-info" onclick="location='/#/post'">
+					创建照片主题
+				</button>
 				<button class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
 				  <ul class="dropdown-menu">
 					<li><a href="#/settings">站点设置</a></li>
@@ -73,9 +75,9 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 </div>
 
 <div class="container" id="container">
-	<div class="row-fluid" id="row-loading">
+	<div class="row" id="row-loading">
 		<div class="span12">
-		<p id="loading">加载数据...</p>
+			<p id="loading">加载数据...</p>
 		</div>
 	</div>
 </div>
@@ -87,45 +89,60 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 <script src="assets/jquery/jquery-1.10.2.min.js"></script>
 <script>_Timestamp.log('endSeajs');</script>
 <script>
+~function (){
 // debug 状态含义参考： https://github.com/seajs/seajs/issues/227
-var _DEBUG = 1;
+var config = {
+	debug: 1,
+//	base: 'http://'+location.hostname+(location.port==='80'? '': ':'+location.port)+'/dist',
+	alias: {
+		//	'jquery': 'assets/jquery/jquery-1.10.2.min.js',
+		'plupload': 'plupload/1.5.6/plupload',
+		'template': 'arttemplate/2.0.1/arttemplate',
+		'bootstrap': 'bootstrap/2.3.2/bootstrap',
+		'md5': 'md5/1.0.0/md5',
+		'hioogo': 'hioogo/0.1.0/hioogo'
+	},
+	preload: [
 
-seajs.config({
-  debug: _DEBUG,
-  base: 'http://'+location.hostname+(location.port==='80'? '': ':'+location.port)+'/dist',
-  alias: {
-//	'jquery': 'assets/jquery/jquery-1.10.2.min.js',
-	
-	'plupload': 'plupload/1.5.6/plupload',
-	'template': 'arttemplate/2.0.1/arttemplate',
-	'md5': 'md5/1.0.0/md5'
-  },
-  preload: [
-	//'hioogo/0.1.0/hioogo',
-  ]
-});
+	],
+	map: [
+		
+	]
+}
 
-seajs.use('hioogo/0.1.0/hioogo');
+if (config.debug || /(\?|&)debug/i.test(location.href)) {
+	config.map = config.map || []
+	config.map.push(function(uri) {
+		if (!/-debug\.(js|css)/i.test(uri)) {
+			uri = uri.replace(/\.(js|css)/, "-debug.$1")
+		}
+		return uri
+	})
+}
+
+seajs.config(config)
+seajs.use('hioogo')
 
 /*
 	目前 debug 有三个值：
 
 	0  --  普通状态
 	1  --  调试状态
-	2  --  无缓存状态 
+	2  --  无缓存状态
+	
 	debug 为 0 时具有的特征是：
-
 	只会输出 console.warn 等类型的信息。
+	
 	debug 为 1 时具有的特征是：
-
 	所有 log 信息都会输出。debug 为 0 时只会输出 console.warn 等类型的信息，不会输出 console.log 信息。
 	自动解 combo. debug 为 1 时，plugin-combo 自动失效。
 	不会删除插入的 script/link 节点。debug 为 0 时会删除。
+	
 	debug 为 2 时具有的特征是：
-
 	具有 1 的所有特征。
 	同时对所有请求加上时间戳，无缓存状态。
 */
+}()
 </script>
 
 <!--[if IE 6]>

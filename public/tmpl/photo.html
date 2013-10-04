@@ -1,85 +1,72 @@
 <div class="row" id="row-photo">
-<div class="span12" id="photoview">
+	<div class="span12" id="photoview">
 
-</div>
-
-<script type="text/html" id="tmpl-photo-edit" class="hide">
-<form id="photo-edit">
-	<img src="<%=photosrc%>"/>
-	<input type="hidden" name="topicid" value="<%=topicid%>"/>
-	<input type="hidden" name="photoid" value="<%=photoid%>"/>
-	<div class="photo-edit-desc">
-		<p>照片拍摄时间：<%=shooting_time%></p>
-		<p>图片描述:</p>
-		<textarea name="description"><%=description%></textarea>
 	</div>
-</form>
-</script>
 
-<script type="text/html" id="tmpl-photoview" class="hide">
-<div class="row">
-	<div class="span12 page-header"><h2 id="topic-title"><%=title%></h2></div>
-	<div class="span12 photo-desc">
-		<div class="muted">
-		<%=author%> 于 <%=updated_at%> 更新，<span class="label label-info"><%=photo_count%></span> 张照片
-		（点击小图可以浏览大图）
+	<script type="text/html" id="tmpl-photoview" class="hide">
+		<div class="page-header"><h2 id="topic-title"><%=title%></h2></div>
+		<div class="photo-desc">
+			<div class="muted">
+				<%=author%> 于 <%=updated_at%> 更新，<span class="label label-info"><%=photo_count%></span> 张照片
+				（点击小图可以浏览大图）
+				  <div class="btn-group">
+					<% if( isauthor ){ %>
+					<a class="btn"><i title="编辑主题" class="icon-edit" data-on="topicedit"></i></a>
+					<a class="btn"><i title="删除主题和其所有照片" class="icon-trash" data-on="topicremove"></i></a>
+					<% } %>
+				  </div>
+			</div>
 			
-			<% if( isauthor ){ %>
-			<div class="btn-group topic_edit">
-				<button class="btn btn-mini btn-info" name="photo-edit">编辑</button>
-				<button class="btn btn-mini btn-info dropdown-toggle" data-toggle="dropdown">
-					<span class="caret"></span>
-				</button>
-				  <ul class="dropdown-menu">
-					<li><a name="topic-remove">删除主题和其所有照片</a></li>
-				  </ul>
+			<% if( description ){ %>
+			<br />
+			<div class="alert alert-info">
+				<dl class="dl-horizontal">
+				  <dt>摘要：</dt>
+				  <dd><%=description%></dd>
+				</dl>
 			</div>
 			<% } %>
 		</div>
-		
-		<% if( description ){ %>
-		<br />
-		<div class="alert alert-info">
-			<dl class="dl-horizontal">
-			  <dt>摘要：</dt>
-			  <dd><%=description%></dd>
-			</dl>
-		</div>
+
+		<ul class="thumbnails">
+		<% for (var i = 0; i < photos.length; i++) { %>
+			<li class="span3" id="photo-<%=photos[i]["_id"]%>">
+				<div class="thumbnail">
+					<div class="photo">
+						<img name="photoview" photoid="<%=photos[i]["_id"]%>" description="<%=photos[i]["description"]%>" src="<%=photos[i]["url"]%>" id="photo-<%=i%>" index="<%=i%>" shooting_time="<%=photos[i]["shooting_time"]%>"/>
+					</div>
+					
+					<p class="mt5">
+						<span id="description-<%=photos[i]["_id"]%>">
+							<%=photos[i]["description"]%>
+						</span>
+						<span>（<%=photos[i]["shooting_time"]%>）</span>
+					</p>
+					
+					<% if( isauthor ){ %>
+					<div class="btn-group photo_edit hide">
+						<a class="btn"><i title="修改照片描述" class="icon-pencil" data-on="photoedit"></i></a>
+						<a class="btn"><i title="删除照片" class="icon-trash" data-on="photoremove" photoid="<%=photos[i]["_id"]%>"></i></a>
+					</div>
+					<% } %>
+				</div>
+			</li>
 		<% } %>
-	</div>
-</div>
+		</ul>
+	</script>
 
-<ul class="thumbnails">
-<% for (var i = 0; i < photos.length; i++) { %>
-	<li class="span3" id="photo-<%=photos[i]["_id"]%>">
-		<div class="thumbnail">
-			<div class="photo">
-				<img name="photoview" photoid="<%=photos[i]["_id"]%>" description="<%=photos[i]["description"]%>" src="<%=photos[i]["mark"]%>" id="photo-<%=i%>" index="<%=i%>" shooting_time="<%=photos[i]["shooting_time"]%>"/>
+
+	<script type="text/html" id="tmpl-photo-edit" class="hide">
+		<form id="photo-edit">
+			<img src="<%=photosrc%>"/>
+			<input type="hidden" name="topicid" value="<%=topicid%>"/>
+			<input type="hidden" name="photoid" value="<%=photoid%>"/>
+			<div class="photo-edit-desc">
+				<p>照片拍摄时间：<%=shooting_time%></p>
+				<p>图片描述:</p>
+				<textarea name="description"><%=description%></textarea>
 			</div>
-			
-			<p class="mt5">
-				<% if( photos[i]["description"] ){ %>
-				<span id="description-<%=photos[i]["_id"]%>"><%=photos[i]["description"]%></span>
-				<% } %>
-				<span>（拍摄时间：<%=photos[i]["shooting_time"]%>）</span>
-			</p>
-			
-			<% if( isauthor ){ %>
-			<div class="btn-group photo_edit hide">
-				<button class="btn btn-mini btn-info" name="photo-edit">编辑</button>
-				<button class="btn btn-mini btn-info dropdown-toggle" data-toggle="dropdown">
-					<span class="caret"></span>
-				</button>
-				  <ul class="dropdown-menu">
-					<li><a name="photo-remove" photoid="<%=photos[i]["_id"]%>">删除此照片</a></li>
-					<li><a name="photo-unlink" photoid="<%=photos[i]["_id"]%>">将此照片移出主题</a></li>
-				  </ul>
-			</div>
-			<% } %>
-		</div>
-	</li>
-<% } %>
-</ul>
-</script>
+		</form>
+	</script>
 
 </div>

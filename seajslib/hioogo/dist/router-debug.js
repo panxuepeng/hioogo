@@ -12,9 +12,8 @@
  * 
  * 2013-01-03 潘雪鹏
  */
-define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug"), common = require("./common-debug"), actionName = Config.index, Path = [], Params = {}, Actions = {};
-    window.jQuery = window.jQuery || $;
+define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), common = require("./common-debug"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
     // 加载一些普通的公共的 js 文件
     // 他们不是seajs模块，如 bootstrap.min.js 等
     getScript(Config.commonScript);
@@ -30,13 +29,18 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
     $(window).bind("hashchange", function() {
         routerInit();
     });
+    // 响应 controller 事件
+    $(document).delegate("[data-on]", "click", function() {
+        var o = $(this), name = o.data("on");
+        Actions[Config.action]["on-" + name](o);
+    });
     //===========================================================================
     /**
-  * 页面初始化
-  *   下列情况下执行：
-  *   1、页面首次加载后
-  *   2、hashchange事件触发后
-  */
+	* 页面初始化
+	*   下列情况下执行：
+	*   1、页面首次加载后
+	*   2、hashchange事件触发后
+	*/
     function routerInit(callback) {
         var action = getAction();
         if (Actions[action]) {
@@ -57,22 +61,22 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         $.isFunction(callback) && callback();
     }
     /**
-  * App资源预加载，在初始化之后执行一次
-  * 
-  */
+	* App资源预加载，在初始化之后执行一次
+	* 
+	*/
     function preload() {
         var pages = Config.pages;
         // 预加载页面模板
         for (var name in pages) {
-            if (name !== actionName) {
+            if (name !== Config.action) {
                 $.get(Config.getTmplPath(name));
             }
         }
     }
     /**
-  * 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
-  * 
-  */
+	* 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
+	* 
+	*/
     function getPath(path) {
         if (path.substr(0, 1) === "!") {
             path = path.slice(1);
@@ -84,9 +88,9 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         return arr;
     }
     /**
-  * 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
-  * 
-  */
+	* 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
+	* 
+	*/
     function getAction() {
         var $_GET, part, action, hash = location.hash.slice(1).replace("?", "&");
         if (hash) {
@@ -102,14 +106,13 @@ define("hioogo/0.1.0/router-debug", [ "./config-debug", "./common-debug" ], func
         if (!action || !Config.pages[action]) {
             action = Config.index;
         }
-        actionName = action;
-        Config.action = actionName;
+        Config.action = action;
         return action;
     }
     /**
-  * 加载普通公共js
-  * 
-  */
+	* 加载普通公共js
+	* 
+	*/
     function getScript(arr) {
         for (var i = 0, length = arr.length; i < length; i += 1) {
             $.ajax({

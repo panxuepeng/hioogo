@@ -1,5 +1,5 @@
 /* 2013-09-30 */
-define("bootstrap/2.3.2/bootstrap", [], function(require, exports) {});
+define("bootstrap/2.3.2/bootstrap-debug", [], function(require, exports) {});
 
 /* ===================================================
  * bootstrap-transition.js v2.3.2

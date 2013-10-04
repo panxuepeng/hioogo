@@ -1,4 +1,4 @@
-/* 2013-09-23 */
+/* 2013-09-30 */
 define("config/1.1.1/config", [], function(require, exports) {
     return seajs;
 });

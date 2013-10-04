@@ -33,16 +33,16 @@ control.index = function(req, res) {
 
 // 作者身份验证
 control.auth = function(req, res, next) {
-	var photoid = req.body.photoid
+	var photoid = req.params.photoid || req.body.photoid || req.query.photoid
 	
 	Photo.findOne({ _id: photoid}).exec(function (err, result) {
 		if (err) {
 			res.jsonp([500, err])
+		} else if (result && req.user._id === result.user_id.toString() ) {
+			next()
 		} else if (!result) {
 			res.jsonp([404, '图片不存在'])
-		} else if ( req.user._id === result.user_id ) {
-			next()
-		} else {
+		} else if ( req.user._id !== result.user_id ) {
 			res.jsonp([403, '没有修改权限'])
 		}
 	})
@@ -55,6 +55,19 @@ control.update = function(req, res) {
 	
 	Photo.update({_id: photoid}, {
 		description: post.description
+		, updated_at: req.time
+	}, function(err, numberAffected, raw) {
+		err ? res.jsonp([400, '更新失败'])
+			: res.jsonp([200, '更新成功'])
+	})
+}
+
+// 更新图片状态
+control.del = function(req, res) {
+	var photoid = req.params.photoid
+	
+	Photo.update({_id: photoid}, {
+		status: -1
 		, updated_at: req.time
 	}, function(err, numberAffected, raw) {
 		err ? res.jsonp([400, '更新失败'])
@@ -75,7 +88,7 @@ control.upload = function(req, res) {
 
 // 删除图片
 control.destroy = function(req, res) {
-	var photoid = req.query.photoid
+	var photoid = req.params.photoid
 
 	Photo.remove({_id: photoid}, function(err, numberAffected) {
 		err ? res.jsonp([500, err])

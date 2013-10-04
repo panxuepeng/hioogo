@@ -127,11 +127,15 @@ function series(req, res) {
 		
 		// 保存到数据库
 		insert: function(cb) {
+			
 			var photo = Photo.create({
 				exif: req.photoExif
-				, uid: null
+				, user_id: req.user._id
 				, photoData: req.photoData
 				, photoMd5: req.photoMd5
+				, created_at: req.time
+				, updated_at: req.time
+				, status: 1
 			})
 			delete req.photoExif
 			delete req.photoData

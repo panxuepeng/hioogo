@@ -16,7 +16,7 @@ module.exports = function(grunt) {
             stripBanners: true
         },
         debug: {
-            src: ['src/seajs.js'],
+            src: ['src/seajs.js', 'src/seajs-log.js'],
             dest: '../../public/dist/<%= pkg.name %>/<%= pkg.version %>/<%= pkg.name %>-debug.js'
         }
     },

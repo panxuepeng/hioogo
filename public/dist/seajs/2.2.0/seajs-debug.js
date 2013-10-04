@@ -1,4 +1,4 @@
-/* 2013-09-24 */
+/* 2013-10-01 */
 (function(global, undefined) {
 
 // Avoid conflicting when `sea.js` is loaded multiple times
@@ -941,3 +941,24 @@ seajs.config = function(configData) {
 }
 
 })(this);
+
+define(function() {
+
+  var data = seajs.data
+
+
+  // The safe wrapper for `console.xxx` functions
+  // log("message") ==> console.log("message")
+  // log("message", "warn") ==> console.warn("message")
+  seajs.log = function(msg, type) {
+
+    window.console &&
+      // Do NOT print `log(msg)` in non-debug mode
+        (type || data.debug) &&
+      // Set the default value of type
+        (console[type || (type = "log")]) &&
+      // Call native method of console
+    console[type](msg)
+  }
+
+});

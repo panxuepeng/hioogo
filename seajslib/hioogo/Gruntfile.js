@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 						'underscore': 'underscore/1.5.2/underscore',
 						'plupload': 'plupload/1.5.6/plupload',
 						'template': 'arttemplate/2.0.1/arttemplate',
+						'bootstrap': 'bootstrap/2.3.2/bootstrap',
 						'md5': 'md5/1.0.0/md5'
 					},
 					idleading: '<%= pkg.name %>/<%= pkg.version %>/'

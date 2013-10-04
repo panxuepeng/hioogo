@@ -12,6 +12,8 @@ define("hioogo/0.1.0/photolist", [ "./config", "arttemplate/2.0.1/arttemplate" ]
                     };
                     initData(data);
                     Config.cache.topiclist["news"] = data;
+                } else {
+                    seajs.log(result);
                 }
             });
         }

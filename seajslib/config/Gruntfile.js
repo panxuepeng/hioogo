@@ -15,7 +15,11 @@ module.exports = function(grunt) {
 				options: {
 					paths:['../../public/dist/'],
 					alias:{
-						'underscore': 'underscore/1.5.2/underscore'
+						'underscore': 'underscore/1.5.2/underscore',
+						'plupload': 'plupload/1.5.6/plupload',
+						'template': 'arttemplate/2.0.1/arttemplate',
+						'bootstrap': 'bootstrap/2.3.1/bootstrap',
+						'md5': 'md5/1.0.0/md5'
 					},
 					idleading: '<%= pkg.name %>/<%= pkg.version %>/'
 				},
@@ -54,7 +58,7 @@ module.exports = function(grunt) {
 			files: [{
 				expand: true,
 				cwd: 'src/',
-				src: ['**/*.css', '**/*.gif', '**/*.png', '**/*.jpg'],
+				src: ['**/*.css', '**/*.gif', '**/*.png', '**/*.jpg', '**/*.swf'],
 				dest: '../../public/dist/<%= pkg.name %>/<%= pkg.version %>/',
 				filter: 'isFile'
 			}]

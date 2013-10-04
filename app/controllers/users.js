@@ -63,7 +63,8 @@ var users = C('users', {
 	show: function(req, res) {
 		var user = auth.get(req)
 		var data = {
-			username: user.username
+			_id: user._id
+			, username: user.username
 			, updated_at: user.updated_at
 			, role: user.role
 		}

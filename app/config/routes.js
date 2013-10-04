@@ -1,6 +1,5 @@
 
 var auth = require('../common/auth')
-  , userRequired = auth.userRequired // 登录验证过滤器
 
 module.exports = function (app, C) {
 	
@@ -14,17 +13,19 @@ module.exports = function (app, C) {
 	var topics = C('topics')
 	app.get('/topics', topics.index)
 	app.get('/topics/:topicid', topics.show)
-	app.post('/topics', userRequired, topics.create)
-	//更新操作需验证作者身份
+	app.post('/topics', topics.create)
+	
+	// 更新操作需验证作者身份
 	app.put('/topics/:topicid', topics.auth, topics.update)
-	app.del('/topics/:topicid', topics.auth, topics.destroy)
+	app.put('/topics/recommend/:topicid', auth.adminRequired, topics.recommend)
+	app.del('/topics/:topicid', topics.auth, topics.del)
 	
 	
 	var photos = C('photos')
 	app.get('/photos', photos.index)
 	app.post('/photos', photos.upload)
 	app.put('/photos/:photoid', photos.auth, photos.update)
-	app.del('/photos/:photoid', photos.auth, photos.destroy)
+	app.del('/photos/:photoid', photos.auth, photos.del)
 	
 }
 
