@@ -17,6 +17,7 @@
 node_modules/
 buildlog/
 seajslib/node_modules/
+seajslib/*/dist/
 photo/
 public/photo/
 _site/
