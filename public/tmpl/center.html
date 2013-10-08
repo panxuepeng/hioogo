@@ -7,13 +7,17 @@
 		</ul>
 	</div>
 	
-	<div class="span9">
+	<div class="span9" id="center">
+		
+	</div>
+	
+	<script type="text/html" id="tmpl-center" class="hide">
 		<form class="form-horizontal" id="center-profile">
 			<legend>个人信息</legend>
 			<div class="control-group">
 				<label class="control-label">姓名</label>
 				<div class="controls">
-					<input name="post[name]" type="text" maxlength="20" pattern=".{2,20}">
+					<input name="post[name]" value="<%=profile.name%>" type="text" maxlength="20" pattern=".{2,20}">
 					
 					<span class="p-note">请使用真实姓名</span>
 					<span class="p-error">姓名最少2个字符</span>
@@ -24,7 +28,7 @@
 			<div class="control-group">
 				<label class="control-label">手机号</label>
 				<div class="controls">
-					<input name="post[mobile]" type="text" data-type="mobile" maxlength="11"/>
+					<input name="post[mobile]" value="<%=profile.mobile%>" type="text" data-type="mobile" maxlength="11"/>
 					
 					<span class="p-note"></span>
 					<span class="p-error">手机号格式不正确</span>
@@ -34,7 +38,7 @@
 			<div class="control-group">
 				<label class="control-label">QQ</label>
 				<div class="controls">
-					<input name="post[qq]" type="text" maxlength="12" pattern="^\d{5,12}$"/>
+					<input name="post[qq]" value="<%=profile.qq%>" type="text" maxlength="12" pattern="^\d{5,12}$"/>
 					<span class="p-error">QQ号码无效</span>
 				</div>
 			</div>
@@ -42,13 +46,13 @@
 			<div class="control-group">
 				<label class="control-label">职业</label>
 				<div class="controls">
-					<input name="post[profession]" type="text" maxlength="30"/>
+					<input name="post[profession]" value="<%=profile.profession%>" type="text" maxlength="30"/>
 				</div>
 			</div>
 			<div class="control-group">
 				<label class="control-label">城市</label>
 				<div class="controls">
-					<input name="post[city]" type="text" maxlength="6"/>
+					<input name="post[city]" value="<%=profile.city%>" type="text" maxlength="6"/>
 				</div>
 			</div>
 			<div class="control-group">
@@ -96,26 +100,26 @@
 			<div class="control-group">
 				<label class="control-label">问题1</label>
 				<div class="controls">
-					<input name="post[0][question]" type="text" maxlength="30"/>
+					<input name="post[q1]" value="<%=questions.q1%>" type="text" maxlength="30"/>
 				</div>
 			</div>
 			<div class="control-group">
 				<label class="control-label">答案1</label>
 				<div class="controls">
-					<input name="post[0][answer]" type="text" maxlength="30"/>
+					<input name="post[a1]" value="<%=questions.a1%>" type="text" maxlength="30"/>
 				</div>
 			</div>
 			
 			<div class="control-group mt40">
 				<label class="control-label">问题2</label>
 				<div class="controls">
-					<input name="post[1][question]" type="text" maxlength="30"/>
+					<input name="post[q2]" value="<%=questions.q2%>" type="text" maxlength="30"/>
 				</div>
 			</div>
 			<div class="control-group">
 				<label class="control-label">答案2</label>
 				<div class="controls">
-					<input name="post[1][answer]" type="text" maxlength="30"/>
+					<input name="post[a2]" value="<%=questions.a2%>" type="text" maxlength="30"/>
 				</div>
 			</div>
 
@@ -129,6 +133,5 @@
 			<button type="button" class="close" data-dismiss="alert">×</button>
 			<div id="center-msg"></div>
 		</div>
-	</div>
-
+	</script>
 </div>

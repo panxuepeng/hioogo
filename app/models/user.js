@@ -24,7 +24,10 @@ var UserSchema = new Schema({
 		, profession: String
 		, city: String
 	}
-	, questions: [{ question: String, answer: String }]
+	, questions: {
+		q1: String, a1: String
+		, q2: String, a2: String
+	}
 })
 
 /**

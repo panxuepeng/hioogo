@@ -2,14 +2,15 @@ define(function(require, exports, module){
 	var md5 = require('md5')
 		, Config = require('../config')
 		, common = require('../common')
+		, template = require('template')
 		, md5 = require('md5')
 		
 	require('validator')
 
 	exports.show = function(name){
 		name = name || 'profile'
-		
-		$('#row-center form').hide()
+
+		$('#row-center form, #center-alert').hide()
 		$('#center-'+name).show()
 		
 		$('#row-center .sidenav li.active').removeClass('active')
@@ -17,19 +18,39 @@ define(function(require, exports, module){
 		
 	}
 
-	exports.init = function() {
+	exports.init = function(name) {
+		name = name || 'profile'
+
+		// 获取用户信息，并将信息显示到对应表单项
+		$.getJSON(Config.serverLink('user'), function(result) {
+			if (result[0] === 200) {
+				var o = result[1].questions
+				o.q1 = o.q1||''
+				o.a1 = o.a1||''
+				o.q2 = o.q2||''
+				o.a2 = o.a2||''
+				
+				var html = template.render('tmpl-center', result[1])
+				$('#center').html(html)
+				
+				setTimeout(function(){
+					$('#row-center form').hide()
+					$('#center-'+name).show()
+					bind()
+				}, 0)
+			}
+		})
+	}
+	
+
+	function bind() {
 		// 表单验证相关
 		// 鼠标移入移出时增加删除classname"focus"
-		$('.control-group').mouseenter(function(){
+		$('.control-group').mouseenter(function() {
 			var o = $(this)
 			if (!o.hasClass('error')) o.addClass('focus')
 		}).mouseleave(function(){
 			$(this).removeClass('focus')
-		})
-		
-		// 获取用户信息，并将信息显示到对应表单项
-		$.getJSON(Config.serverLink('user'), function(obj){
-			console.log(obj)
 		})
 		
 		var submitting = false

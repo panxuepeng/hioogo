@@ -30,7 +30,7 @@ define(function(require, exports, module){
 	
 	// 编辑图片描述
 	exports['on-photoedit'] = function($el) {
-		var html = template.render('tmpl-photo-edit', getEditTmplData($el));
+		var html = template.render('tmpl-photo-edit', getEditTmplData($el))
 		common.dialog({
 			title: '编辑照片描述',
 			width: 600,

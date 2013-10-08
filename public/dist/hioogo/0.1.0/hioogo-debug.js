@@ -307,17 +307,37 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
         }
     }
 });
-define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
-    var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), md5 = require("md5/1.0.0/md5-debug");
+define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "arttemplate/2.0.1/arttemplate-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
+    var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), md5 = require("md5/1.0.0/md5-debug");
     require("validator/1.2.0/validator-debug");
     exports.show = function(name) {
         name = name || "profile";
-        $("#row-center form").hide();
+        $("#row-center form, #center-alert").hide();
         $("#center-" + name).show();
         $("#row-center .sidenav li.active").removeClass("active");
         $("#row-center .sidenav a[href*=" + name + "]").closest("li").addClass("active");
     };
-    exports.init = function() {
+    exports.init = function(name) {
+        name = name || "profile";
+        // 获取用户信息，并将信息显示到对应表单项
+        $.getJSON(Config.serverLink("user"), function(result) {
+            if (result[0] === 200) {
+                var o = result[1].questions;
+                o.q1 = o.q1 || "";
+                o.a1 = o.a1 || "";
+                o.q2 = o.q2 || "";
+                o.a2 = o.a2 || "";
+                var html = template.render("tmpl-center", result[1]);
+                $("#center").html(html);
+                setTimeout(function() {
+                    $("#row-center form").hide();
+                    $("#center-" + name).show();
+                    bind();
+                }, 0);
+            }
+        });
+    };
+    function bind() {
         // 表单验证相关
         // 鼠标移入移出时增加删除classname"focus"
         $(".control-group").mouseenter(function() {
@@ -325,10 +345,6 @@ define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../conf
             if (!o.hasClass("error")) o.addClass("focus");
         }).mouseleave(function() {
             $(this).removeClass("focus");
-        });
-        // 获取用户信息
-        $.getJSON(Config.serverLink("user"), function(obj) {
-            console.log(obj);
         });
         var submitting = false;
         // 个人信息
@@ -466,7 +482,7 @@ define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../conf
                 }
             });
         }
-    };
+    }
 });
 define("hioogo/0.1.0/controller/login-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug");
