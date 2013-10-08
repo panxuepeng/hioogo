@@ -22,7 +22,7 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 <script>_Timestamp.log('beginBody');</script>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
-    <div class="container">
+    <div class="container-fluid">
 		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
@@ -31,23 +31,26 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 		<a class="brand">看自然</a>
 		<div class="nav-collapse">
 			<ul class="nav" id="photo-tags">
-			  <li class="active"><a href="#/photolist">首页</a></li>
+			  <li class="active hide"><a href="#/photolist">首页</a></li>
 			</ul>
 			
-			<a id="login" href="#/login" class="btn pull-right"><i class="icon-user"></i> 登录</a>
-			<div id="post" class="btn-group pull-right hide">
+			<a id="user-login" href="#/login" class="btn pull-right"><i class="icon-user"></i> 登录</a>
+			<div id="create-topic" class="btn-group pull-right hide">
 				<button class="btn btn-info" onclick="location='/#/post'">
 					创建照片主题
 				</button>
 				<button class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
 				  <ul class="dropdown-menu">
-					<li><a href="#/settings">站点设置</a></li>
-					<li><a href="#/profile">个人信息</a></li>
-					<li><a href="#/password">修改密码</a></li>
+					<li><a href="#/settings">网站设置</a></li>
+					<li><a href="#/settings/category">主题分类设置</a></li>
 					<li class="divider"></li>
-					<li><a href="#/tags">修改分类</a></li>
+					
+					<li><a href="#/center/profile">个人信息</a></li>
+					<li><a href="#/center/password">修改密码</a></li>
+					<li><a href="#/center/questions">安全问题</a></li>
+					
 					<li class="divider"></li>
-					<li><a href="#/logout" id="logout">退出</a></li>
+					<li><a href="#/logout" id="user-logout">退出</a></li>
 				  </ul>
 			</div>
 		</div>
@@ -74,6 +77,13 @@ var _Timestamp={begin: +new Date(), log: function(name){this[name] = + new Date(
 	<a id="player-close"></a>
 </div>
 
+<div class="container">
+	<div class="row">
+		<div class="span12">
+			<ul id="breadcrumb" class="breadcrumb"></ul>
+		</div>
+	</div>
+</div>
 <div class="container" id="container">
 	<div class="row" id="row-loading">
 		<div class="span12">
@@ -100,6 +110,7 @@ var config = {
 		'template': 'arttemplate/2.0.1/arttemplate',
 		'bootstrap': 'bootstrap/2.3.2/bootstrap',
 		'md5': 'md5/1.0.0/md5',
+		'validator': 'validator/1.2.0/validator',
 		'hioogo': 'hioogo/0.1.0/hioogo'
 	},
 	preload: [

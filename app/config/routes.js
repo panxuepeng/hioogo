@@ -4,10 +4,15 @@ var auth = require('../common/auth')
 module.exports = function (app, C) {
 	
 	var u = C('users')
-	app.get('/user', u.show)
+	app.get('/user', auth.userRequired, u.show)
 	app.post('/login', u.login)
 	app.get('/logout', u.logout)
 	app.get('/signup', u.create)
+	
+	app.put('/center/profile', u.profile)
+	app.put('/center/password', u.password)
+	app.put('/center/questions', u.questions)
+	
 	
 	
 	var topics = C('topics')

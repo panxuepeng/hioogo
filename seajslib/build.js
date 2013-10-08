@@ -26,7 +26,7 @@ process.stdin.on('data', function( name ) {
 		dirs = shell.ls('./').filter(function(file) {
 			// 仅返回目录，并且过滤掉 node_modules 和 module-tpl 两个非组件目录
 			// 以及其他一些特殊组件
-			return !/^(node_modules|module-tpl|jquery|seajs|class|events|hello)$/i.test(file) && shell.test('-d', file);
+			return !/^(node_modules|module-tpl|jquery|seajs|class|hello)$/i.test(file) && shell.test('-d', file);
 		});
 		
 	} else if ( shell.test('-d', name) ) {

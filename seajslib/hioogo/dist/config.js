@@ -30,7 +30,10 @@ define("hioogo/0.1.0/config", [], function(require, exports, module) {
         photo: 1,
         photolist: 1,
         login: 1,
-        post: 2
+        center: 1,
+        setting: 1,
+        post: 2,
+        center: 2
     };
     // 页面js版本号
     exports.actionVersion = {};

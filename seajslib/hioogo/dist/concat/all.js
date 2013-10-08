@@ -1,15 +1,18 @@
-/* 2013-10-03 */
+/* 2013-10-08 */
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
-    var Config = require("./config"), bootstrap = require("bootstrap/2.3.2/bootstrap");
+define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var Config = require("./config"), bootstrap = require("bootstrap/2.3.2/bootstrap"), Events = require("events/1.1.0/events");
+    Events.mixTo(exports);
     // 页面首次加载时都会执行一次
     function init() {
         $.getJSON(Config.serverLink("user"), function(result) {
             exports.checkLogin(result);
         });
-        $("#logout").on("click", function() {
+        $("#user-logout").on("click", function() {
             $.getJSON(Config.serverLink("logout"), function(result) {
-                exports.checkLogin(result);
+                if (result[0] === 200) {
+                    exports.checkLogin([ 0 ]);
+                }
             });
             return false;
         });
@@ -23,15 +26,15 @@ define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap" ], funct
             Config.logined = true;
             // 登录之后需要清除主题缓存
             Config.cache.reset();
-            $("#login").fadeOut(100, function() {
+            $("#user-login").fadeOut(100, function() {
                 setTimeout(function() {
-                    $("#post").show();
+                    $("#create-topic").show();
                 }, 200);
             });
         } else {
             // 未登录状态
-            $("#login").show();
-            $("#post").hide();
+            $("#user-login").show();
+            $("#create-topic").hide();
             // 判断当前页面是否是受保护的页面
             // 如果是则跳转到首页
             for (var name in pages) {
@@ -80,6 +83,20 @@ define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap" ], funct
     exports.dialog.close = function() {
         $("#dialog").modal("hide");
     };
+    // 页面初始化事件
+    exports.on("afterinit", function() {
+        breadcrumb();
+    });
+    // 设置面包屑导航
+    var breadcrumb = function() {
+        var html, $title = $("#topic-title");
+        if ($title.is(":visible")) {
+            html = '<li><a href="#/photolist">最新照片</a></li>' + '<li class="active"><span class="divider">/</span> ' + $title.text() + "</li>";
+        } else {
+            html = "<li>最新照片</li>";
+        }
+        $("#breadcrumb").html(html);
+    };
     // 延迟加载
     exports.lazyload = function() {
         var timeId;
@@ -108,7 +125,7 @@ define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap" ], funct
         return top > minHeight && top < maxHeight;
     }
     function getFooterHtml() {
-        var s = '<p>&copy;2013 <a href="/?about">关于看自然</a> Powered by KanZiRan</p>' + "<p>Thanks " + '<a href="http://twitter.github.com/bootstrap/" target="_blank" title="基于HTML，CSS，JAVASCRIPT的简洁灵活的前端框架及交互组件集">Bootstrap</a>' + '<a href="http://jquery.com/" target="_blank" title="一个优秀的JavaScrīpt框架。使用户能更方便地处理HTML documents、events、实现动画效果，并且方便地为网站提供AJAX交互">jQuery</a>' + '<a href="http://www.laravel.com/" target="_blank" title="Laravel是一款人性化的PHP Web框架，推荐！。">Laravel</a>' + '<a href="http://seajs.org/" target="_blank" title="SeaJS 是一个适用于 Web 端的模块加载器">SeaJS</a>' + '<a href="http://www.plupload.com/" target="_blank" title="一款基于 Flash、HTML5 的文件上传工具，其最大的特点是，在浏览器端压缩图片后会保留照片的Exif信息">Plupload</a>' + '<a href="https://github.com/aui/artTemplate" target="_blank" title="一款性能卓越的 javascript 模板引擎">artTemplate</a>' + "</p>";
+        var s = '<p>&copy;2013 <a href="/?about">关于看自然</a> Powered by KanZiRan</p>' + "<p>Thanks " + '<a href="http://twitter.github.com/bootstrap/" target="_blank" title="基于HTML，CSS，JAVASCRIPT的简洁灵活的前端框架及交互组件集">Bootstrap</a>' + '<a href="http://jquery.com/" target="_blank" title="一个优秀的JavaScrīpt框架。使用户能更方便地处理HTML documents、events、实现动画效果，并且方便地为网站提供AJAX交互">jQuery</a>' + '<a href="http://seajs.org/" target="_blank" title="SeaJS 是一个适用于 Web 端的模块加载器">SeaJS</a>' + '<a href="http://www.plupload.com/" target="_blank" title="一款基于 Flash、HTML5 的文件上传工具，其最大的特点是，在浏览器端压缩图片后会保留照片的Exif信息">Plupload</a>' + '<a href="https://github.com/aui/artTemplate" target="_blank" title="一款性能卓越的 javascript 模板引擎">artTemplate</a>' + "</p>";
         return s;
     }
 });
@@ -144,7 +161,10 @@ define("hioogo/0.1.0/config", [], function(require, exports, module) {
         photo: 1,
         photolist: 1,
         login: 1,
-        post: 2
+        center: 1,
+        setting: 1,
+        post: 2,
+        center: 2
     };
     // 页面js版本号
     exports.actionVersion = {};
@@ -176,218 +196,284 @@ define("hioogo/0.1.0/config", [], function(require, exports, module) {
         return url;
     };
 });
-define("hioogo/0.1.0/default.player", [ "./common", "./config", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
-    var common = require("./common"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
-    // 关闭大图
-    dom.on("click", "#player-close", function() {
-        $("body").css("overflow", "visible");
-        $("#player").addClass("hide");
-        current = null;
-        dom.off("mousewheel.bigphoto");
-        $("#player .photo").stop().stop().stop();
-    });
-    // 上一张
-    dom.on("click", "#player-prev", function() {
-        exports.prev();
-    });
-    // 下一张
-    dom.on("click", "#player-next", function() {
-        exports.next();
-    });
-    // 点击小图，打开大图
-    dom.on("click", "img[name=photoview]", function() {
-        currentIndex = parseInt($(this).attr("index"), 10);
-        $("body").css({
-            overflow: "hidden"
-        });
-        // 使用 setTimeout 是为了避免 body 的overflow:hidden 属性失效
+define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var Config = require("./config"), common = require("./common"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
+    // 加载一些普通的公共的 js 文件
+    // 他们不是seajs模块，如 bootstrap.min.js 等
+    getScript(Config.commonScript);
+    // 初始化成功之后，加载相关资源
+    // 回调方法仅需执行一次
+    routerInit(function() {
+        common.init();
         setTimeout(function() {
-            play(currentIndex);
-        }, 0);
+            preload();
+        }, 500);
     });
-    // 点击页面停止图片自动滚动
-    dom.on("click", "#player", function() {
-        $("#player .photo").stop().stop().stop();
-        ismoving = false;
+    // 绑定 hashchange 事件
+    $(window).bind("hashchange", function() {
+        routerInit();
     });
-    win.resize(function() {
-        resize();
+    // 响应 controller 事件
+    $(document).delegate("[data-on]", "click", function() {
+        var o = $(this), name = o.data("on");
+        Actions[Config.action]["on-" + name](o);
     });
-    win.keydown(function(event) {
-        var keyCode = event.keyCode;
-        // LEFT 37, RIGHT 39; UP 38, DOWN 40
-        switch (keyCode) {
-          case 37:
-            exports.prev();
-            break;
-
-          case 39:
-            exports.next();
-            break;
-
-          case 38:
-            exports.up();
-            break;
-
-          case 40:
-            exports.down();
-            break;
-
-          case 27:
-            exports.close();
-            break;
+    //===========================================================================
+    /**
+	* 页面初始化
+	*   下列情况下执行：
+	*   1、页面首次加载后
+	*   2、hashchange事件触发后
+	*/
+    function routerInit(callback) {
+        var action = getAction();
+        Config.action = action;
+        if (Actions[action]) {
+            $("#container").children(":visible").hide();
+            $("#row-" + action).show();
+            $.isFunction(Actions[action].show) && Actions[action].show(Path[1]);
+        } else {
+            seajs.use("./dist/hioogo/" + Config.version + "/controller/" + action, function(o) {
+                $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
+                    $("#container").children(":visible").hide();
+                    $("#container").append(tmpl);
+                    $.isFunction(o.init) && o.init(Path[1]);
+                    $.isFunction(o.show) && o.show(Path[1]);
+                });
+                Actions[action] = o;
+            });
         }
-    });
-    exports.close = function() {
-        $("#player").addClass("hide");
+        $.isFunction(callback) && callback();
+    }
+    /**
+	* App资源预加载，在初始化之后执行一次
+	* 
+	*/
+    function preload() {
+        var pages = Config.pages;
+        // 预加载页面模板
+        for (var name in pages) {
+            if (name !== Config.action) {
+                $.get(Config.getTmplPath(name));
+            }
+        }
+    }
+    /**
+	* 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
+	* 
+	*/
+    function getPath(path) {
+        if (path.substr(0, 1) === "!") {
+            path = path.slice(1);
+        }
+        if (path && path.substr(0, 1) === "/") {
+            path = path.slice(1);
+        }
+        var arr = path.split("/");
+        return arr;
+    }
+    /**
+	* 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
+	* 
+	*/
+    function getAction() {
+        var $_GET, part, action, hash = location.hash.slice(1).replace("?", "&");
+        if (hash) {
+            $_GET = hash.split("&");
+            Path = getPath($_GET[0]);
+            action = Path[0];
+            for (var i = 1, length = $_GET.length; i < length; i += 1) {
+                part = $_GET[i].split("=");
+                Params[part[0]] = part[1];
+            }
+        }
+        // 如当前请求的action为空或者不在指定列表当中，则使用默认action
+        if (!action || !Config.pages[action]) {
+            action = Config.index;
+        }
+        return action;
+    }
+    /**
+	* 加载普通公共js
+	* 
+	*/
+    function getScript(arr) {
+        for (var i = 0, length = arr.length; i < length; i += 1) {
+            $.ajax({
+                url: arr[i],
+                dataType: "script",
+                cache: "true"
+            });
+        }
+    }
+});
+define("hioogo/0.1.0/controller/center", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
+    var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common"), md5 = require("md5/1.0.0/md5");
+    require("validator/1.2.0/validator");
+    exports.show = function(name) {
+        name = name || "profile";
+        $("#row-center form").hide();
+        $("#center-" + name).show();
+        $("#row-center .sidenav li.active").removeClass("active");
+        $("#row-center .sidenav a[href*=" + name + "]").closest("li").addClass("active");
     };
     exports.init = function() {
-        resize();
-        photoCount = $("img[name=photoview]").size();
-    };
-    exports.prev = function() {
-        $("#player .photo").stop().stop().stop();
-        currentIndex -= 1;
-        if (currentIndex < 0) {
-            currentIndex = 0;
-            common.dialog({
-                content: "已经是第一张照片了"
-            });
-        } else {
-            play(currentIndex);
-        }
-    };
-    exports.next = function() {
-        $("#player .photo").stop().stop().stop();
-        currentIndex += 1;
-        if (currentIndex < photoCount) {
-            play(currentIndex);
-        } else {
-            common.dialog({
-                content: "已经是最后一张照片了"
-            });
-        }
-    };
-    exports.up = function() {
-        onmousewheel(10);
-    };
-    exports.down = function() {
-        onmousewheel(-10);
-    };
-    function resize() {
-        $("#player .photo").height(win.height() - 20);
-    }
-    // 打开大图
-    function play(index) {
-        var img = $("#photo-" + index), src = img.attr("src").replace("/270/", "/970/");
-        var o = $("#player-photo"), height = o.height(), description = img.attr("description") || '<span style="color:#eeeeef;">暂无照片描述</span>';
-        o.css({
-            "background-position-y": 0
+        // 表单验证相关
+        // 鼠标移入移出时增加删除classname"focus"
+        $(".control-group").mouseenter(function() {
+            var o = $(this);
+            if (!o.hasClass("error")) o.addClass("focus");
+        }).mouseleave(function() {
+            $(this).removeClass("focus");
         });
-        current = null;
-        dom.off("mousewheel.bigphoto");
-        $("#player").removeClass("hide");
-        $("#player-desc").html("<h4>" + $("#topic-title").text() + "</h4>" + description);
-        $("#player-shooting-time").html(img.attr("shooting_time"));
-        if (photoCache[src]) {
-            var _img = photoCache[src];
-            dom.on("mousewheel.bigphoto", function(e) {
-                //console.log(e.originalEvent.wheelDelta);
-                // 向上滚动大于0
-                // 向下滚动小于0
-                onmousewheel(e.originalEvent.wheelDelta);
-            });
-            o.css("background-image", "url(" + src + ")");
-            if (_img.height > height + 100) {
-                ismoving = true;
-                var offset = (height - _img.height) / 2;
-                o.animate({
-                    "background-position-y": offset
-                }, 3e3, function() {
-                    current = _img;
-                    ismoving = false;
+        // 获取用户信息
+        $.getJSON(Config.serverLink("user"), function(obj) {
+            console.log(obj);
+        });
+        var submitting = false;
+        // 个人信息
+        $("#center-profile").validator({
+            after: function() {
+                if (submitting) return false;
+                var arr = $(this).serializeArray();
+                var data = {};
+                $.each(arr, function(i, n) {
+                    data[n.name] = n.value;
                 });
-            }
-        } else {
-            var img = new Image();
-            img.index = index;
-            img.onload = function() {
-                // 图片加载完成之后，如用户没有切换其他图片，则正常显示
-                if (currentIndex === img.index) {
-                    current = {
-                        height: img.height,
-                        width: img.width
-                    };
-                    dom.on("mousewheel.bigphoto", function(e) {
-                        //console.log(e.originalEvent.wheelDelta);
-                        // 向上滚动大于0
-                        // 向下滚动小于0
-                        onmousewheel(e.originalEvent.wheelDelta);
-                    });
-                    o.css("background-image", "url(" + src + ")");
-                    // 当图片比较高的情况下，自动将图片滚动到中间的位置
-                    if (img.height > height + 100) {
-                        var offset = (height - img.height) / 2;
-                        ismoving = true;
-                        o.animate({
-                            "background-position-y": offset
-                        }, 3e3, function() {
-                            ismoving = false;
-                        });
-                    }
+                submitting = true;
+                // console.log(data)
+                submitProfile(data);
+                return false;
+            },
+            errorCallback: function(els) {
+                submitting = false;
+                if (typeof console === "object") {
+                    console.log("验证失败的表单：");
+                    console.log(els);
                 }
-                photoCache[src] = {
-                    height: img.height,
-                    width: img.width
-                };
-                img = null;
-            };
-            img.src = src;
-        }
-    }
-    // 鼠标滚轮滚动时，上下滑动图像
-    // backgroundPosition/backgroundPositionY 的浏览器兼容问题比较多
-    // 上下滚动效果有背景偏移最好改用scrollTop
-    // 向上滚动大于0
-    // 向下滚动小于0
-    function onmousewheel(wheelDelta) {
-        if (!ismoving) {
-            var o = $("#player .photo"), height = o.height(), step = 60;
-            var posy = parseInt(o.css("backgroundPositionY") || 0, 10);
-            // ie9下得不到正确的背景偏移（backgroundPositionY），ie7/8可以正确获取，Y?
-            // 但是可以得到backgroundPosition
-            if (!posy) {
-                // 暂时处理ie9下得不到backgroundPositionY的问题
-                posy = parseInt(o.css("backgroundPosition").split(" ")[1], 10);
             }
-            //console.log(o.css('backgroundPosition'));
-            if (wheelDelta > 0) {
-                posy -= step;
-            } else {
-                posy += step;
-            }
-            if (posy > height) {
-                posy = height;
-            } else if (posy < -current.height) {
-                posy = -current.height;
-            }
-            o.css({
-                backgroundPositionY: posy
+        });
+        function submitProfile(data) {
+            $.ajax({
+                url: Config.serverLink("center/profile"),
+                type: "PUT",
+                data: data,
+                dataType: "json",
+                success: function(result) {
+                    var alert = $("#center-alert");
+                    if (result[0] === 200) {
+                        alert.removeClass("alert-error").addClass("alert-success");
+                    } else {
+                        alert.removeClass("alert-success").addClass("alert-error");
+                    }
+                    $("#center-msg").html(result[1]);
+                    alert.show();
+                },
+                error: function() {
+                    alert("提交失败，请稍候再试");
+                },
+                complete: function() {
+                    submitting = false;
+                }
             });
         }
-        // return false 以阻止页面滚动
-        return false;
-    }
+        $("#center-password input").attr("required", "true").data("parent", ".control-group");
+        // 修改密码
+        $("#center-password").validator({
+            after: function() {
+                if (submitting) return false;
+                var arr = $(this).serializeArray();
+                var data = {};
+                $.each(arr, function(i, n) {
+                    data[n.name] = md5($.trim(n.value));
+                });
+                submitting = true;
+                //console.log(data)
+                submitPassword(data);
+                return false;
+            },
+            errorCallback: function(els) {
+                submitting = false;
+                if (typeof console === "object") {
+                    console.log("验证失败的表单：");
+                    console.log(els);
+                }
+            }
+        });
+        function submitPassword(data) {
+            $.ajax({
+                url: Config.serverLink("center/password"),
+                type: "PUT",
+                data: data,
+                dataType: "json",
+                success: function(result) {
+                    var alert = $("#center-alert");
+                    if (result[0] === 200) {
+                        alert.removeClass("alert-error").addClass("alert-success");
+                    } else {
+                        alert.removeClass("alert-success").addClass("alert-error");
+                    }
+                    $("#center-msg").html(result[1]);
+                    alert.show();
+                },
+                error: function() {
+                    alert("提交失败，请稍候再试");
+                },
+                complete: function() {
+                    submitting = false;
+                }
+            });
+        }
+        // 安全问题
+        $("#center-questions").validator({
+            after: function() {
+                if (submitting) return false;
+                var data = $(this).serializeArray();
+                submitting = true;
+                // console.log(data)
+                submitSecure(data);
+                return false;
+            },
+            errorCallback: function(els) {
+                submitting = false;
+                if (typeof console === "object") {
+                    console.log("验证失败的表单：");
+                    console.log(els);
+                }
+            }
+        });
+        function submitSecure(data) {
+            $.ajax({
+                url: Config.serverLink("center/questions"),
+                type: "PUT",
+                data: data,
+                dataType: "json",
+                success: function(result) {
+                    var alert = $("#center-alert");
+                    if (result[0] === 200) {
+                        alert.removeClass("alert-error").addClass("alert-success");
+                    } else {
+                        alert.removeClass("alert-success").addClass("alert-error");
+                    }
+                    $("#center-msg").html(result[1]);
+                    alert.show();
+                },
+                error: function() {
+                    alert("提交失败，请稍候再试");
+                },
+                complete: function() {
+                    submitting = false;
+                }
+            });
+        }
+    };
 });
-define("hioogo/0.1.0/hioogo", [ "./router", "./config", "./common", "bootstrap/2.3.2/bootstrap" ], function(require, exports) {
-    var router = require("./router");
-});
-define("hioogo/0.1.0/login", [ "md5/1.0.0/md5", "./config", "./common", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
-    var md5 = require("md5/1.0.0/md5"), Config = require("./config"), common = require("./common");
+define("hioogo/0.1.0/controller/login", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common");
     exports.show = function() {};
     exports.init = function() {
         $("form[name=login]").on("submit", function() {
-            var form = $(this), data, password = form.find(":password[name=password]"), pwd = password.val();
+            var form = $(this), data, password = form.find(":password[name=password]"), pwd = $.trim(password.val());
             password.val(md5(pwd));
             data = form.serialize();
             password.val(pwd);
@@ -405,9 +491,9 @@ define("hioogo/0.1.0/login", [ "md5/1.0.0/md5", "./config", "./common", "bootstr
         });
     };
 });
-define("hioogo/0.1.0/photo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
-    var Config = require("./config"), common = require("./common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = "", dom = $(document);
-    require.async("./" + Config.player, function(player) {
+define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
+    var Config = require("../config"), common = require("../common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = "", dom = $(document);
+    require.async("../player/" + Config.player, function(player) {
         photoPlayer = player;
     });
     exports.show = function(id) {
@@ -524,6 +610,7 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "bootstrap/2.3.2/bootstra
         setTimeout(function() {
             photoPlayer.init();
         }, 0);
+        common.trigger("afterinit");
     }
     function getEditTmplData(btn) {
         var img = btn.closest(".thumbnail").find("img"), src = img.attr("src"), photoid = img.attr("photoid"), shooting_time = img.attr("shooting_time"), description = img.attr("description");
@@ -578,8 +665,8 @@ define("hioogo/0.1.0/photo", [ "./config", "./common", "bootstrap/2.3.2/bootstra
         });
     }
 });
-define("hioogo/0.1.0/photolist", [ "./config", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
-    var Config = require("./config"), template = require("arttemplate/2.0.1/arttemplate");
+define("hioogo/0.1.0/controller/photolist", [ "../config", "arttemplate/2.0.1/arttemplate", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var Config = require("../config"), template = require("arttemplate/2.0.1/arttemplate"), common = require("../common");
     exports.tmpl = "photolist";
     exports.show = function() {
         if (Config.cache.topiclist["news"]) {
@@ -619,14 +706,15 @@ define("hioogo/0.1.0/photolist", [ "./config", "arttemplate/2.0.1/arttemplate" ]
                 }
             }).show();
         }
+        common.trigger("afterinit");
     }
     exports.init = function() {};
     // 获取主题封面照片
     function getPhotos() {}
 });
-define("hioogo/0.1.0/post", [ "plupload/1.5.6/plupload", "./common", "./config", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload");
-    var uploader, common = require("./common"), Config = require("./config");
+    var uploader, common = require("../common"), Config = require("../config");
     exports.show = function(id) {
         var postForm = $("form[name=post]");
         if (id) {
@@ -898,114 +986,211 @@ define("hioogo/0.1.0/post", [ "plupload/1.5.6/plupload", "./common", "./config",
         }
     };
 });
-define("hioogo/0.1.0/router", [ "./config", "./common", "bootstrap/2.3.2/bootstrap" ], function(require, exports, module) {
-    var Config = require("./config"), common = require("./common"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
-    // 加载一些普通的公共的 js 文件
-    // 他们不是seajs模块，如 bootstrap.min.js 等
-    getScript(Config.commonScript);
-    // 初始化成功之后，加载相关资源
-    // 回调方法仅需执行一次
-    routerInit(function() {
-        common.init();
+define("hioogo/0.1.0/controller/setting", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common");
+    exports.show = function(name) {};
+    exports.init = function() {};
+});
+define("hioogo/0.1.0/player/default.player", [ "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+    var common = require("../common"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
+    // 关闭大图
+    dom.on("click", "#player-close", function() {
+        $("body").css("overflow", "visible");
+        $("#player").addClass("hide");
+        current = null;
+        dom.off("mousewheel.bigphoto");
+        $("#player .photo").stop().stop().stop();
+    });
+    // 上一张
+    dom.on("click", "#player-prev", function() {
+        exports.prev();
+    });
+    // 下一张
+    dom.on("click", "#player-next", function() {
+        exports.next();
+    });
+    // 点击小图，打开大图
+    dom.on("click", "img[name=photoview]", function() {
+        currentIndex = parseInt($(this).attr("index"), 10);
+        $("body").css({
+            overflow: "hidden"
+        });
+        // 使用 setTimeout 是为了避免 body 的overflow:hidden 属性失效
         setTimeout(function() {
-            preload();
-        }, 500);
+            play(currentIndex);
+        }, 0);
     });
-    // 绑定 hashchange 事件
-    $(window).bind("hashchange", function() {
-        routerInit();
+    // 点击页面停止图片自动滚动
+    dom.on("click", "#player", function() {
+        $("#player .photo").stop().stop().stop();
+        ismoving = false;
     });
-    // 响应 controller 事件
-    $(document).delegate("[data-on]", "click", function() {
-        var o = $(this), name = o.data("on");
-        Actions[Config.action]["on-" + name](o);
+    win.resize(function() {
+        resize();
     });
-    //===========================================================================
-    /**
-	* 页面初始化
-	*   下列情况下执行：
-	*   1、页面首次加载后
-	*   2、hashchange事件触发后
-	*/
-    function routerInit(callback) {
-        var action = getAction();
-        if (Actions[action]) {
-            $("#container").children(":visible").hide();
-            $("#row-" + action).show();
-            $.isFunction(Actions[action].show) && Actions[action].show(Path[1]);
+    win.keydown(function(event) {
+        var keyCode = event.keyCode;
+        // LEFT 37, RIGHT 39; UP 38, DOWN 40
+        switch (keyCode) {
+          case 37:
+            exports.prev();
+            break;
+
+          case 39:
+            exports.next();
+            break;
+
+          case 38:
+            exports.up();
+            break;
+
+          case 40:
+            exports.down();
+            break;
+
+          case 27:
+            exports.close();
+            break;
+        }
+    });
+    exports.close = function() {
+        $("#player").addClass("hide");
+    };
+    exports.init = function() {
+        resize();
+        photoCount = $("img[name=photoview]").size();
+    };
+    exports.prev = function() {
+        $("#player .photo").stop().stop().stop();
+        currentIndex -= 1;
+        if (currentIndex < 0) {
+            currentIndex = 0;
+            common.dialog({
+                content: "已经是第一张照片了"
+            });
         } else {
-            seajs.use("./dist/hioogo/" + Config.version + "/" + action, function(o) {
-                $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
-                    $("#container").children(":visible").hide();
-                    $("#container").append(tmpl);
-                    $.isFunction(o.init) && o.init(Path[1]);
-                    $.isFunction(o.show) && o.show(Path[1]);
+            play(currentIndex);
+        }
+    };
+    exports.next = function() {
+        $("#player .photo").stop().stop().stop();
+        currentIndex += 1;
+        if (currentIndex < photoCount) {
+            play(currentIndex);
+        } else {
+            common.dialog({
+                content: "已经是最后一张照片了"
+            });
+        }
+    };
+    exports.up = function() {
+        onmousewheel(10);
+    };
+    exports.down = function() {
+        onmousewheel(-10);
+    };
+    function resize() {
+        $("#player .photo").height(win.height() - 20);
+    }
+    // 打开大图
+    function play(index) {
+        var img = $("#photo-" + index), src = img.attr("src").replace("/270/", "/970/");
+        var o = $("#player-photo"), height = o.height(), description = img.attr("description") || '<span style="color:#eeeeef;">暂无照片描述</span>';
+        o.css({
+            "background-position-y": 0
+        });
+        current = null;
+        dom.off("mousewheel.bigphoto");
+        $("#player").removeClass("hide");
+        $("#player-desc").html("<h4>" + $("#topic-title").text() + "</h4>" + description);
+        $("#player-shooting-time").html(img.attr("shooting_time"));
+        if (photoCache[src]) {
+            var _img = photoCache[src];
+            dom.on("mousewheel.bigphoto", function(e) {
+                //console.log(e.originalEvent.wheelDelta);
+                // 向上滚动大于0
+                // 向下滚动小于0
+                onmousewheel(e.originalEvent.wheelDelta);
+            });
+            o.css("background-image", "url(" + src + ")");
+            if (_img.height > height + 100) {
+                ismoving = true;
+                var offset = (height - _img.height) / 2;
+                o.animate({
+                    "background-position-y": offset
+                }, 3e3, function() {
+                    current = _img;
+                    ismoving = false;
                 });
-                Actions[action] = o;
+            }
+        } else {
+            var img = new Image();
+            img.index = index;
+            img.onload = function() {
+                // 图片加载完成之后，如用户没有切换其他图片，则正常显示
+                if (currentIndex === img.index) {
+                    current = {
+                        height: img.height,
+                        width: img.width
+                    };
+                    dom.on("mousewheel.bigphoto", function(e) {
+                        //console.log(e.originalEvent.wheelDelta);
+                        // 向上滚动大于0
+                        // 向下滚动小于0
+                        onmousewheel(e.originalEvent.wheelDelta);
+                    });
+                    o.css("background-image", "url(" + src + ")");
+                    // 当图片比较高的情况下，自动将图片滚动到中间的位置
+                    if (img.height > height + 100) {
+                        var offset = (height - img.height) / 2;
+                        ismoving = true;
+                        o.animate({
+                            "background-position-y": offset
+                        }, 3e3, function() {
+                            ismoving = false;
+                        });
+                    }
+                }
+                photoCache[src] = {
+                    height: img.height,
+                    width: img.width
+                };
+                img = null;
+            };
+            img.src = src;
+        }
+    }
+    // 鼠标滚轮滚动时，上下滑动图像
+    // backgroundPosition/backgroundPositionY 的浏览器兼容问题比较多
+    // 上下滚动效果有背景偏移最好改用scrollTop
+    // 向上滚动大于0
+    // 向下滚动小于0
+    function onmousewheel(wheelDelta) {
+        if (!ismoving) {
+            var o = $("#player .photo"), height = o.height(), step = 60;
+            var posy = parseInt(o.css("backgroundPositionY") || 0, 10);
+            // ie9下得不到正确的背景偏移（backgroundPositionY），ie7/8可以正确获取，Y?
+            // 但是可以得到backgroundPosition
+            if (!posy) {
+                // 暂时处理ie9下得不到backgroundPositionY的问题
+                posy = parseInt(o.css("backgroundPosition").split(" ")[1], 10);
+            }
+            //console.log(o.css('backgroundPosition'));
+            if (wheelDelta > 0) {
+                posy -= step;
+            } else {
+                posy += step;
+            }
+            if (posy > height) {
+                posy = height;
+            } else if (posy < -current.height) {
+                posy = -current.height;
+            }
+            o.css({
+                backgroundPositionY: posy
             });
         }
-        $.isFunction(callback) && callback();
-    }
-    /**
-	* App资源预加载，在初始化之后执行一次
-	* 
-	*/
-    function preload() {
-        var pages = Config.pages;
-        // 预加载页面模板
-        for (var name in pages) {
-            if (name !== Config.action) {
-                $.get(Config.getTmplPath(name));
-            }
-        }
-    }
-    /**
-	* 获取 http://kanziran.com/#!/photolist/2?k1=val&k2=val2当中 /photolist/2 部分
-	* 
-	*/
-    function getPath(path) {
-        if (path.substr(0, 1) === "!") {
-            path = path.slice(1);
-        }
-        if (path && path.substr(0, 1) === "/") {
-            path = path.slice(1);
-        }
-        var arr = path.split("/");
-        return arr;
-    }
-    /**
-	* 获取 http://kanziran.com/#!/photo/2 当中的 photo 部分
-	* 
-	*/
-    function getAction() {
-        var $_GET, part, action, hash = location.hash.slice(1).replace("?", "&");
-        if (hash) {
-            $_GET = hash.split("&");
-            Path = getPath($_GET[0]);
-            action = Path[0];
-            for (var i = 1, length = $_GET.length; i < length; i += 1) {
-                part = $_GET[i].split("=");
-                Params[part[0]] = part[1];
-            }
-        }
-        // 如当前请求的action为空或者不在指定列表当中，则使用默认action
-        if (!action || !Config.pages[action]) {
-            action = Config.index;
-        }
-        Config.action = action;
-        return action;
-    }
-    /**
-	* 加载普通公共js
-	* 
-	*/
-    function getScript(arr) {
-        for (var i = 0, length = arr.length; i < length; i += 1) {
-            $.ajax({
-                url: arr[i],
-                dataType: "script",
-                cache: "true"
-            });
-        }
+        // return false 以阻止页面滚动
+        return false;
     }
 });

@@ -19,7 +19,9 @@ module.exports = function(grunt) {
 						'plupload': 'plupload/1.5.6/plupload',
 						'template': 'arttemplate/2.0.1/arttemplate',
 						'bootstrap': 'bootstrap/2.3.2/bootstrap',
-						'md5': 'md5/1.0.0/md5'
+						'md5': 'md5/1.0.0/md5',
+						'events': 'events/1.1.0/events',
+						'validator': 'validator/1.2.0/validator',
 					},
 					idleading: '<%= pkg.name %>/<%= pkg.version %>/'
 				},
@@ -36,11 +38,17 @@ module.exports = function(grunt) {
 				stripBanners: true
 			},
 			debug: {
-				src: ['dist/*-debug.js'],
+				src: [
+					'dist/*-debug.js',
+					'dist/*/*-debug.js',
+				],
 				dest: '../../public/dist/<%= pkg.name %>/<%= pkg.version %>/<%= pkg.name %>-debug.js'
 			},
 			dist: {
-				src: ['dist/*.js', '!dist/*-debug.js'],
+				src: [
+					'dist/*.js', '!dist/*-debug.js',
+					'dist/*/*.js', '!dist/*/*-debug.js',
+				],
 				dest: 'dist/concat/all.js'
 			}
 		},

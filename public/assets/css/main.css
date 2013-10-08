@@ -6,8 +6,29 @@ body{padding-top:50px;min-height:600px;}
 .mt10{margin-top:10px;}
 .mt20{margin-top:20px;}
 .mt30{margin-top:30px;}
+.mt40{margin-top:40px;}
 textarea{resize:none;}
 p{line-height:22px;}
+.inline{display: inline}
+
+.breadcrumb {background-color: #fff; padding:8px 2px; margin:10px 0;}
+.sidenav > li > a {
+  display: block;
+  width: 190px \9;
+  margin: 0 0 -1px;
+  padding: 8px 14px;
+  border: 1px solid #e5e5e5;
+}
+.sidenav > li:first-child > a {
+  -webkit-border-radius: 6px 6px 0 0;
+     -moz-border-radius: 6px 6px 0 0;
+          border-radius: 6px 6px 0 0;
+}
+.sidenav > li:last-child > a {
+  -webkit-border-radius: 0 0 6px 6px;
+     -moz-border-radius: 0 0 6px 6px;
+          border-radius: 0 0 6px 6px;
+}
 
 #container{min-height:450px;}
 
@@ -41,6 +62,19 @@ p{line-height:22px;}
 .thumbnail{position:relative;}
 .thumbnail .photo_edit{position:absolute; top:10px; right:10px; cursor:default;left:10px; right:auto;}
 .thumbnail .photo{overflow:hidden;max-height:320px;}
+
+
+/* 表单验证 */
+.p-note, .p-error, .p-error-empty{color:red;display:none;font-size:12px;padding-left:10px;}
+
+.error .p-error {display:inline;}
+.error .p-note, .error .p-error-empty{display:none;}
+
+.empty .p-error-empty {display:inline;}
+.empty .p-note, .empty .p-error{display:none;}
+
+.focus .p-note{display:inline; color:#999;}
+.focus .p-error, .focus .p-error-empty{display:none;}
 
 /* Footer
 -------------------------------------------------- */
