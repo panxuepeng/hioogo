@@ -66,7 +66,10 @@ define(function(require, exports, module){
 				$.get(Config.getTmplPath(o.tmpl||action), function(tmpl){
 					$("#container").children(":visible").hide()
 					$("#container").append(tmpl)
+					
+					// init 方法仅首次加载时执行一次
 					$.isFunction(o.init) && o.init( Path[1] )
+					
 					$.isFunction(o.show) && o.show( Path[1] )
 				})
 				Actions[ action ] = o

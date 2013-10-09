@@ -1,4 +1,4 @@
-/* 2013-10-08 */
+/* 2013-10-09 */
 // 用来处理公共区域的操作，比如页头部分
 define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug");
@@ -237,6 +237,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
                 $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
                     $("#container").children(":visible").hide();
                     $("#container").append(tmpl);
+                    // init 方法仅首次加载时执行一次
                     $.isFunction(o.init) && o.init(Path[1]);
                     $.isFunction(o.show) && o.show(Path[1]);
                 });
@@ -797,17 +798,17 @@ define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", 
                     /*
 					$.post(Config.serverLink('topics'), data, function( result ){
 						if( result[0] === 200 ){
-							var topicid = result[1].topicid;
-							self.success(topicid);
+							var topicid = result[1].topicid
+							self.success(topicid)
 							
 							// 删除主题的缓存信息
-							Config.cache.topic[topicid] = null;
+							Config.cache.topic[topicid] = null
 						}else{
-							self.error(result[1]);
+							self.error(result[1])
 						}
 					}, 'json').error(function(xhr, status){
-						alert('出现错误，请稍候再试。');
-					});
+						alert('出现错误，请稍候再试。')
+					})
 					*/
                     var type = "POST", url = Config.serverLink("topics");
                     // 修改需用 PUT 方式提交数据
@@ -838,6 +839,10 @@ define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", 
             $("button[name=post-reset]").on("click", function() {
                 location = "/#/post";
                 Form.reset();
+            });
+            // 表单项变化时增加离开提示
+            $(":input").on("change", function() {
+                Confirm.set();
             });
         },
         check: function(form) {
@@ -982,7 +987,7 @@ define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", 
     var Confirm = {
         //设置离开提示
         set: function(msg) {
-            msg = msg || "确定要离开吗？";
+            msg = msg || "修改尚未保存，确定离开？";
             //如果已经绑定了 onbeforeunload 事件则不再绑定
             if (typeof window.onbeforeunload == "function") {
                 return false;

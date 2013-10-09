@@ -53,6 +53,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
                 $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
                     $("#container").children(":visible").hide();
                     $("#container").append(tmpl);
+                    // init 方法仅首次加载时执行一次
                     $.isFunction(o.init) && o.init(Path[1]);
                     $.isFunction(o.show) && o.show(Path[1]);
                 });

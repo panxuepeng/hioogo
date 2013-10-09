@@ -38,7 +38,9 @@ control.show = function(req, res) {
 			// 这里碰到一个问题，具体原因尚不明确
 			// topics photos等对象，不能动态的增减属性
 			// 也就是说，要修改的属性必须是在model当中定义的属性
-			Photo.find({_id: {'$in': topics.photos}, status:1}).exec(function(err2, photos){
+			Photo.find({_id: {'$in': topics.photos}, status:1})
+			.sort({shooting_time: -1})
+			.exec(function(err2, photos){
 				photos.prototype = null
 				_.each(photos, function(photo){
 					photo.url = Photo.getPhotoUrl(photo)
