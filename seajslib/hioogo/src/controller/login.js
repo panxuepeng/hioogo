@@ -7,7 +7,29 @@ define(function(require, exports, module){
 
 	}
 
+	exports.submit = function(form){
+		var data,
+			password = form.find(':password[name=password]'),
+			pwd = $.trim(password.val())
+			
+		password.val( md5(pwd) )
+		data = form.serialize()
+		password.val( pwd )
+		
+		$.post(Config.serverLink('login'), data, function( result ){
+			if( result[0] === 200 ){
+				location = Config.home()
+				common.checkLogin(result)
+			}else{
+				alert(result[1])
+			}
+		}, 'json').error(function(xhr, status){
+			alert(status)
+		})
+	}
+	
 	exports.init = function(){
+		/*
 		$('form[name=login]').on('submit', function() {
 			var form = $(this),
 				data,
@@ -31,5 +53,6 @@ define(function(require, exports, module){
 			
 			return false
 		})
+		*/
 	}
 })

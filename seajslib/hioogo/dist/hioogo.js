@@ -14,9 +14,6 @@
  */
 define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
     var Config = require("./config"), common = require("./common"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
-    // 加载一些普通的公共的 js 文件
-    // 他们不是seajs模块，如 bootstrap.min.js 等
-    getScript(Config.commonScript);
     // 初始化成功之后，加载相关资源
     // 回调方法仅需执行一次
     routerInit(function() {
@@ -33,6 +30,12 @@ define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstr
     $(document).delegate("[data-on]", "click", function() {
         var o = $(this), name = o.data("on");
         Actions[Config.action]["on-" + name](o);
+    });
+    // 响应 submit 事件
+    $(document).delegate("form", "submit", function() {
+        var o = $(this), submit = Actions[Config.action]["submit"] || function() {};
+        submit(o);
+        return false;
     });
     //===========================================================================
     /**
@@ -109,18 +112,5 @@ define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstr
             action = Config.index;
         }
         return action;
-    }
-    /**
-	* 加载普通公共js
-	* 
-	*/
-    function getScript(arr) {
-        for (var i = 0, length = arr.length; i < length; i += 1) {
-            $.ajax({
-                url: arr[i],
-                dataType: "script",
-                cache: "true"
-            });
-        }
     }
 });

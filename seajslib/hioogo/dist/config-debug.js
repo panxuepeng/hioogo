@@ -21,8 +21,6 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
     exports.action = "photolist";
     // 时间戳
     exports.timestamp = +new Date();
-    // 公共js
-    exports.commonScript = [];
     // 页面资源
     // 1: 普通页面
     // 2: 需检查登录状态的页面

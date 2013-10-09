@@ -24,7 +24,10 @@ var PhotoSchema = new Schema({
 	, created_at: {type: Date, default: Date.now}
 	, updated_at: {type: Date, default: Date.now}
 	, mark: { type: String, unique: true } // md5(二进制内容)
+	
+	// 浏览时使用，非数据库必须字段
 	, url: String // 图片的url
+	
 	, shooting_time: Date // 拍摄时间
 	, filesize: Number // 文件大小，单位kb
 	, width: Number

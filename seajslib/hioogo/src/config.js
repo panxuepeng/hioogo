@@ -26,9 +26,6 @@ define(function(require, exports, module){
 	// 时间戳
 	exports.timestamp = (+ new Date)
 
-	// 公共js
-	exports.commonScript = []
-
 	// 页面资源
 	// 1: 普通页面
 	// 2: 需检查登录状态的页面

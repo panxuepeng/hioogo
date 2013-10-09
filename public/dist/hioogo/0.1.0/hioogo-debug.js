@@ -1,4 +1,4 @@
-/* 2013-10-09 */
+/* 2013-10-10 */
 // 用来处理公共区域的操作，比如页头部分
 define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug");
@@ -152,8 +152,6 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
     exports.action = "photolist";
     // 时间戳
     exports.timestamp = +new Date();
-    // 公共js
-    exports.commonScript = [];
     // 页面资源
     // 1: 普通页面
     // 2: 需检查登录状态的页面
@@ -198,9 +196,6 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
 });
 define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), common = require("./common-debug"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
-    // 加载一些普通的公共的 js 文件
-    // 他们不是seajs模块，如 bootstrap.min.js 等
-    getScript(Config.commonScript);
     // 初始化成功之后，加载相关资源
     // 回调方法仅需执行一次
     routerInit(function() {
@@ -217,6 +212,12 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
     $(document).delegate("[data-on]", "click", function() {
         var o = $(this), name = o.data("on");
         Actions[Config.action]["on-" + name](o);
+    });
+    // 响应 submit 事件
+    $(document).delegate("form", "submit", function() {
+        var o = $(this), submit = Actions[Config.action]["submit"] || function() {};
+        submit(o);
+        return false;
     });
     //===========================================================================
     /**
@@ -293,19 +294,6 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
             action = Config.index;
         }
         return action;
-    }
-    /**
-	* 加载普通公共js
-	* 
-	*/
-    function getScript(arr) {
-        for (var i = 0, length = arr.length; i < length; i += 1) {
-            $.ajax({
-                url: arr[i],
-                dataType: "script",
-                cache: "true"
-            });
-        }
     }
 });
 define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "arttemplate/2.0.1/arttemplate-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
@@ -488,25 +476,23 @@ define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../conf
 define("hioogo/0.1.0/controller/login-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug");
     exports.show = function() {};
-    exports.init = function() {
-        $("form[name=login]").on("submit", function() {
-            var form = $(this), data, password = form.find(":password[name=password]"), pwd = $.trim(password.val());
-            password.val(md5(pwd));
-            data = form.serialize();
-            password.val(pwd);
-            $.post(Config.serverLink("login"), data, function(result) {
-                if (result[0] === 200) {
-                    location = Config.home();
-                    common.checkLogin(result);
-                } else {
-                    alert(result[1]);
-                }
-            }, "json").error(function(xhr, status) {
-                alert(status);
-            });
-            return false;
+    exports.submit = function(form) {
+        var data, password = form.find(":password[name=password]"), pwd = $.trim(password.val());
+        password.val(md5(pwd));
+        data = form.serialize();
+        password.val(pwd);
+        $.post(Config.serverLink("login"), data, function(result) {
+            if (result[0] === 200) {
+                location = Config.home();
+                common.checkLogin(result);
+            } else {
+                alert(result[1]);
+            }
+        }, "json").error(function(xhr, status) {
+            alert(status);
         });
     };
+    exports.init = function() {};
 });
 define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
     var Config = require("../config-debug"), common = require("../common-debug"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate-debug"), currentTopicid = "", dom = $(document);
