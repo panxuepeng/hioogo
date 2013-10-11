@@ -142,6 +142,9 @@ define(function(require, exports, module){
 		
 		$("#photoview").html( html )
 		setTimeout(function(){
+			if (Config.cache.user.role === 8) {
+				$('#topic-recommend').css({display: 'inline-block'});
+			}
 			photoPlayer.init()
 		}, 0);
 		common.trigger('afterinit')

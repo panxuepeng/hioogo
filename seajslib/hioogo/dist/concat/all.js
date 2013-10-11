@@ -1,7 +1,7 @@
-/* 2013-10-10 */
+/* 2013-10-11 */
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
-    var Config = require("./config"), bootstrap = require("bootstrap/2.3.2/bootstrap"), Events = require("events/1.1.0/events");
+define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
+    var Config = require("./config"), bootstrap = require("bootstrap/2.3.2/bootstrap"), Events = require("events/1.1.0/events"), validator = require("validator/1.2.0/validator");
     Events.mixTo(exports);
     // 页面首次加载时都会执行一次
     function init() {
@@ -26,6 +26,7 @@ define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap", "events
             Config.logined = true;
             // 登录之后需要清除主题缓存
             Config.cache.reset();
+            Config.cache.user = result[1];
             $("#user-login").fadeOut(100, function() {
                 setTimeout(function() {
                     $("#create-topic").show();
@@ -137,7 +138,10 @@ define("hioogo/0.1.0/config", [], function(require, exports, module) {
         reset: function() {
             this.topic = {};
             this.topiclist = {};
+            this.user = {};
         },
+        user: {},
+        // 当前用户
         topic: {},
         // 主题缓存
         topiclist: {}
@@ -194,7 +198,7 @@ define("hioogo/0.1.0/config", [], function(require, exports, module) {
         return url;
     };
 });
-define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     var Config = require("./config"), common = require("./common"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
     // 初始化成功之后，加载相关资源
     // 回调方法仅需执行一次
@@ -215,9 +219,11 @@ define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstr
     });
     // 响应 submit 事件
     $(document).delegate("form", "submit", function() {
-        var o = $(this), submit = Actions[Config.action]["submit"] || function() {};
-        submit(o);
-        return false;
+        var o = $(this), submit = Actions[Config.action]["submit" || o.data("submit")];
+        if (submit) {
+            submit(o);
+            return false;
+        }
     });
     //===========================================================================
     /**
@@ -296,9 +302,8 @@ define("hioogo/0.1.0/hioogo", [ "./config", "./common", "bootstrap/2.3.2/bootstr
         return action;
     }
 });
-define("hioogo/0.1.0/controller/center", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "arttemplate/2.0.1/arttemplate", "validator/1.2.0/validator" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/center", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common"), template = require("arttemplate/2.0.1/arttemplate"), md5 = require("md5/1.0.0/md5");
-    require("validator/1.2.0/validator");
     exports.show = function(name) {
         name = name || "profile";
         $("#row-center form, #center-alert").hide();
@@ -473,7 +478,7 @@ define("hioogo/0.1.0/controller/center", [ "md5/1.0.0/md5", "../config", "../com
         }
     }
 });
-define("hioogo/0.1.0/controller/login", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/login", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common");
     exports.show = function() {};
     exports.submit = function(form) {
@@ -494,7 +499,7 @@ define("hioogo/0.1.0/controller/login", [ "md5/1.0.0/md5", "../config", "../comm
     };
     exports.init = function() {};
 });
-define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
     var Config = require("../config"), common = require("../common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = "", dom = $(document);
     require.async("../player/" + Config.player, function(player) {
         photoPlayer = player;
@@ -611,6 +616,11 @@ define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2
         }
         $("#photoview").html(html);
         setTimeout(function() {
+            if (Config.cache.user.role === 8) {
+                $("#topic-recommend").css({
+                    display: "inline-block"
+                });
+            }
             photoPlayer.init();
         }, 0);
         common.trigger("afterinit");
@@ -668,7 +678,7 @@ define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2
         });
     }
 });
-define("hioogo/0.1.0/controller/photolist", [ "../config", "arttemplate/2.0.1/arttemplate", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photolist", [ "../config", "arttemplate/2.0.1/arttemplate", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     var Config = require("../config"), template = require("arttemplate/2.0.1/arttemplate"), common = require("../common");
     exports.tmpl = "photolist";
     exports.show = function() {
@@ -715,7 +725,7 @@ define("hioogo/0.1.0/controller/photolist", [ "../config", "arttemplate/2.0.1/ar
     // 获取主题封面照片
     function getPhotos() {}
 });
-define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload");
     var uploader, common = require("../common"), Config = require("../config");
     exports.show = function(id) {
@@ -993,12 +1003,12 @@ define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common",
         }
     };
 });
-define("hioogo/0.1.0/controller/setting", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/setting", [ "md5/1.0.0/md5", "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5"), Config = require("../config"), common = require("../common");
     exports.show = function(name) {};
     exports.init = function() {};
 });
-define("hioogo/0.1.0/player/default.player", [ "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/player/default.player", [ "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     var common = require("../common"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
     // 关闭大图
     dom.on("click", "#player-close", function() {

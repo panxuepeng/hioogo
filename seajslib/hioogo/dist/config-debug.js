@@ -6,7 +6,10 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
         reset: function() {
             this.topic = {};
             this.topiclist = {};
+            this.user = {};
         },
+        user: {},
+        // 当前用户
         topic: {},
         // 主题缓存
         topiclist: {}

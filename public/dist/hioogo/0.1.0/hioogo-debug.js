@@ -1,7 +1,7 @@
-/* 2013-10-10 */
+/* 2013-10-11 */
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug");
+define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug"), validator = require("validator/1.2.0/validator-debug");
     Events.mixTo(exports);
     // 页面首次加载时都会执行一次
     function init() {
@@ -26,6 +26,7 @@ define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstr
             Config.logined = true;
             // 登录之后需要清除主题缓存
             Config.cache.reset();
+            Config.cache.user = result[1];
             $("#user-login").fadeOut(100, function() {
                 setTimeout(function() {
                     $("#create-topic").show();
@@ -137,7 +138,10 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
         reset: function() {
             this.topic = {};
             this.topiclist = {};
+            this.user = {};
         },
+        user: {},
+        // 当前用户
         topic: {},
         // 主题缓存
         topiclist: {}
@@ -194,7 +198,7 @@ define("hioogo/0.1.0/config-debug", [], function(require, exports, module) {
         return url;
     };
 });
-define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), common = require("./common-debug"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
     // 初始化成功之后，加载相关资源
     // 回调方法仅需执行一次
@@ -215,9 +219,11 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
     });
     // 响应 submit 事件
     $(document).delegate("form", "submit", function() {
-        var o = $(this), submit = Actions[Config.action]["submit"] || function() {};
-        submit(o);
-        return false;
+        var o = $(this), submit = Actions[Config.action]["submit" || o.data("submit")];
+        if (submit) {
+            submit(o);
+            return false;
+        }
     });
     //===========================================================================
     /**
@@ -296,9 +302,8 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
         return action;
     }
 });
-define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "arttemplate/2.0.1/arttemplate-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), md5 = require("md5/1.0.0/md5-debug");
-    require("validator/1.2.0/validator-debug");
     exports.show = function(name) {
         name = name || "profile";
         $("#row-center form, #center-alert").hide();
@@ -473,7 +478,7 @@ define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../conf
         }
     }
 });
-define("hioogo/0.1.0/controller/login-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/login-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug");
     exports.show = function() {};
     exports.submit = function(form) {
@@ -494,7 +499,7 @@ define("hioogo/0.1.0/controller/login-debug", [ "md5/1.0.0/md5-debug", "../confi
     };
     exports.init = function() {};
 });
-define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
     var Config = require("../config-debug"), common = require("../common-debug"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate-debug"), currentTopicid = "", dom = $(document);
     require.async("../player/" + Config.player, function(player) {
         photoPlayer = player;
@@ -611,6 +616,11 @@ define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-de
         }
         $("#photoview").html(html);
         setTimeout(function() {
+            if (Config.cache.user.role === 8) {
+                $("#topic-recommend").css({
+                    display: "inline-block"
+                });
+            }
             photoPlayer.init();
         }, 0);
         common.trigger("afterinit");
@@ -668,7 +678,7 @@ define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-de
         });
     }
 });
-define("hioogo/0.1.0/controller/photolist-debug", [ "../config-debug", "arttemplate/2.0.1/arttemplate-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photolist-debug", [ "../config-debug", "arttemplate/2.0.1/arttemplate-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var Config = require("../config-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), common = require("../common-debug");
     exports.tmpl = "photolist";
     exports.show = function() {
@@ -715,7 +725,7 @@ define("hioogo/0.1.0/controller/photolist-debug", [ "../config-debug", "arttempl
     // 获取主题封面照片
     function getPhotos() {}
 });
-define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload-debug");
     var uploader, common = require("../common-debug"), Config = require("../config-debug");
     exports.show = function(id) {
@@ -993,12 +1003,12 @@ define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", 
         }
     };
 });
-define("hioogo/0.1.0/controller/setting-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/setting-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug");
     exports.show = function(name) {};
     exports.init = function() {};
 });
-define("hioogo/0.1.0/player/default.player-debug", [ "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/player/default.player-debug", [ "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var common = require("../common-debug"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
     // 关闭大图
     dom.on("click", "#player-close", function() {

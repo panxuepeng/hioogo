@@ -1,4 +1,4 @@
-define("hioogo/0.1.0/controller/photolist-debug", [ "../config-debug", "arttemplate/2.0.1/arttemplate-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photolist-debug", [ "../config-debug", "arttemplate/2.0.1/arttemplate-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var Config = require("../config-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), common = require("../common-debug");
     exports.tmpl = "photolist";
     exports.show = function() {

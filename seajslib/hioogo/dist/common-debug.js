@@ -1,6 +1,6 @@
 // 用来处理公共区域的操作，比如页头部分
-define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
-    var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug");
+define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
+    var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug"), validator = require("validator/1.2.0/validator-debug");
     Events.mixTo(exports);
     // 页面首次加载时都会执行一次
     function init() {
@@ -25,6 +25,7 @@ define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstr
             Config.logined = true;
             // 登录之后需要清除主题缓存
             Config.cache.reset();
+            Config.cache.user = result[1];
             $("#user-login").fadeOut(100, function() {
                 setTimeout(function() {
                     $("#create-topic").show();

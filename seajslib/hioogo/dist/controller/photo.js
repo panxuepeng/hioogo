@@ -1,4 +1,4 @@
-define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator", "arttemplate/2.0.1/arttemplate" ], function(require, exports, module) {
     var Config = require("../config"), common = require("../common"), photoPlayer = null, template = require("arttemplate/2.0.1/arttemplate"), currentTopicid = "", dom = $(document);
     require.async("../player/" + Config.player, function(player) {
         photoPlayer = player;
@@ -115,6 +115,11 @@ define("hioogo/0.1.0/controller/photo", [ "../config", "../common", "bootstrap/2
         }
         $("#photoview").html(html);
         setTimeout(function() {
+            if (Config.cache.user.role === 8) {
+                $("#topic-recommend").css({
+                    display: "inline-block"
+                });
+            }
             photoPlayer.init();
         }, 0);
         common.trigger("afterinit");

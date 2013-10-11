@@ -1,4 +1,4 @@
-define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events" ], function(require, exports, module) {
+define("hioogo/0.1.0/controller/post", [ "plupload/1.5.6/plupload", "../common", "../config", "bootstrap/2.3.2/bootstrap", "events/1.1.0/events", "validator/1.2.0/validator" ], function(require, exports, module) {
     require("plupload/1.5.6/plupload");
     var uploader, common = require("../common"), Config = require("../config");
     exports.show = function(id) {

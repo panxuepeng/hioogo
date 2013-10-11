@@ -43,10 +43,11 @@ define(function(require, exports, module){
 	// 响应 submit 事件
 	$(document).delegate('form', 'submit', function(){
 		var o = $(this)
-			, submit = Actions[ Config.action ]['submit']
+			, submit = Actions[ Config.action ]['submit'|| o.data('submit')]
 			
-		if (submit) {	
-			submit(o), return false
+		if (submit) {
+			submit(o)
+			return false
 		}
 	})
 

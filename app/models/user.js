@@ -39,7 +39,12 @@ UserSchema.methods = {
 }
 
 UserSchema.statics = {
-	validate: function(post) {
+	create: function (data, cb) {
+		var User = mongoose.model('User')
+		var user = new User(data)
+		user.save(cb)
+	}
+	, validate: function(post) {
 		
 	}
 	, validateSecure: function(post) {

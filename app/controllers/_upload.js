@@ -16,15 +16,30 @@ function series(req, res) {
 		// 不存在时进入下一步，直接返回图片路径
 		check: function(cb) {
 			
-			if ( !req.files.photo ) {
-				cb('未检测到上传图片');
-			} else if (req.files.photo.type.substr(0, 5) !== 'image') {
-				cb('只能上传图片文件');
-			} else if (req.files.photo.length > config.postLimit ) {
-				cb('只能上传10M内的图片文件');
+			if (!req.files.photo) {
+				cb('未检测到上传图片')
+			} else {
+				var photo = req.files.photo
+				var size = photo.size || photo.length
+				var contentType = ''
+				
+				if (photo.headers) {
+					contentType = photo.headers['content-type']
+				} else if (photo.type) {
+					contentType = photo.type
+				} else {
+					console.log('没有发现上传文件类型')
+				}
+				
+				if (size > config.postLimit) {
+					cb('只能上传10M内的图片文件')
+				}
+				if (contentType.substr(0, 5) !== 'image') {
+					cb('只能上传图片文件')
+				}
 			}
 			
-			cb(null, true);
+			cb(null, true)
 		},
 		
 		isExist: function(cb) {

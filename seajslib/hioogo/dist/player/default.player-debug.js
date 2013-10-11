@@ -8,7 +8,7 @@
  * 5.[左右]方向键进入[上下]一张，[上下]方向键[上下]移动图片
  * 
  */
-define("hioogo/0.1.0/player/default.player-debug", [ "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/player/default.player-debug", [ "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var common = require("../common-debug"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;
     // 关闭大图
     dom.on("click", "#player-close", function() {

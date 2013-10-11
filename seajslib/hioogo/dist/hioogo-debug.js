@@ -12,7 +12,7 @@
  * 
  * 2013-01-03 潘雪鹏
  */
-define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug" ], function(require, exports, module) {
+define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), common = require("./common-debug"), Path = [], Params = {}, Actions = {}, $ = window.jQuery;
     // 初始化成功之后，加载相关资源
     // 回调方法仅需执行一次
@@ -33,9 +33,11 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
     });
     // 响应 submit 事件
     $(document).delegate("form", "submit", function() {
-        var o = $(this), submit = Actions[Config.action]["submit"] || function() {};
-        submit(o);
-        return false;
+        var o = $(this), submit = Actions[Config.action]["submit" || o.data("submit")];
+        if (submit) {
+            submit(o);
+            return false;
+        }
     });
     //===========================================================================
     /**

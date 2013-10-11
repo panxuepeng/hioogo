@@ -3,7 +3,8 @@ define(function(require, exports, module) {
 	var Config = require('./config')
 		, bootstrap = require('bootstrap')
 		, Events = require('events')
-
+		, validator = require('validator')
+		
 	Events.mixTo(exports)
 
 	// 页面首次加载时都会执行一次
@@ -34,7 +35,7 @@ define(function(require, exports, module) {
 			Config.logined = true
 			// 登录之后需要清除主题缓存
 			Config.cache.reset()
-			
+			Config.cache.user = result[1]
 			$("#user-login").fadeOut(100, function() {
 				setTimeout(function() {$("#create-topic").show()}, 200)
 			})

@@ -4,8 +4,6 @@ define(function(require, exports, module){
 		, common = require('../common')
 		, template = require('template')
 		, md5 = require('md5')
-		
-	require('validator')
 
 	exports.show = function(name){
 		name = name || 'profile'
@@ -70,7 +68,7 @@ define(function(require, exports, module){
 				submitProfile(data)
 				return false // 阻止表单提交
 			},
-			errorCallback: function(els){
+			errorCallback: function(els) {
 				submitting = false
 				if (typeof console === 'object') {
 					console.log('验证失败的表单：')

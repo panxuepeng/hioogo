@@ -1,1 +1,1 @@
-node D:\GitHub\hioogo\app.js
+node app.js

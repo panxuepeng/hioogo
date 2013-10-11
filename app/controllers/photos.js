@@ -80,6 +80,7 @@ control.del = function(req, res) {
 // 上传成功返回示例 {"id":"id","url":"url"}
 // 上传失败返回示例 {"error":1,"msg":"Failed to save."}
 control.upload = function(req, res) {
+	//console.log(req.files)
 	async.series( upload(req, res), function(err, result) {
 		err ? res.jsonp({error:1, msg: err})
 			: res.jsonp({id:result['insert'], url:result['write'] })
