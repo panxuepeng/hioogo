@@ -1,5 +1,6 @@
 
 var auth = require('../common/auth')
+var log = require('../common/log')
 
 module.exports = function (app, C) {
 	
@@ -24,14 +25,20 @@ module.exports = function (app, C) {
 	app.put('/topics/:topicid', topics.auth, topics.update)
 	app.put('/topics/recommend/:topicid', auth.adminRequired, topics.recommend)
 	app.del('/topics/:topicid', topics.auth, topics.del)
-	
+
 	
 	var photos = C('photos')
 	app.get('/photos', photos.index)
-	app.post('/photos', photos.upload)
+	app.post('/photos', log.exif, photos.upload)
 	app.put('/photos/:photoid', photos.auth, photos.update)
 	app.del('/photos/:photoid', photos.auth, photos.del)
 	
+	
+	var setting = C('setting')
+	app.get('/setting/website', setting.website)
+	app.put('/setting/website', setting.updateWebsite)
+	app.get('/setting/category', setting.category)
+	app.put('/setting/category', setting.updateCategory)
 }
 
 /*

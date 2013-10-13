@@ -1,4 +1,4 @@
-/* 2013-10-11 */
+/* 2013-10-13 */
 // 用来处理公共区域的操作，比如页头部分
 define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var Config = require("./config-debug"), bootstrap = require("bootstrap/2.3.2/bootstrap-debug"), Events = require("events/1.1.0/events-debug"), validator = require("validator/1.2.0/validator-debug");
@@ -19,6 +19,37 @@ define("hioogo/0.1.0/common-debug", [ "./config-debug", "bootstrap/2.3.2/bootstr
         $("footer").html(getFooterHtml());
     }
     exports.init = init;
+    exports.formData = function(form, fn) {
+        var path = form.attr("action");
+        if (!path) return;
+        $.ajax({
+            url: Config.serverLink(path),
+            type: "GET",
+            dataType: "json",
+            success: function(result) {
+                if (result[0] === 200) {
+                    form.find(":input").each(function() {
+                        var input = $(this), name = input.attr("name");
+                        if (typeof result[1][name] !== "undefined") {
+                            input.val(result[1][name]);
+                        }
+                        if (typeof fn === "function") {
+                            fn.call(form, result[1]);
+                        }
+                    });
+                } else {}
+            },
+            error: function() {
+                alert("数据加载失败，请稍候再试");
+            },
+            complete: function() {}
+        });
+    };
+    exports.show = function(name) {
+        // 切换侧栏菜单
+        $(".sidenav li.active").removeClass("active");
+        $(".sidenav a[href*=" + name + "]").closest("li").addClass("active");
+    };
     // 检查登录状态
     exports.checkLogin = function(result) {
         var pages = Config.pages;
@@ -219,7 +250,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
     });
     // 响应 submit 事件
     $(document).delegate("form", "submit", function() {
-        var o = $(this), submit = Actions[Config.action]["submit" || o.data("submit")];
+        var o = $(this), submit = Actions[Config.action][o.data("submit") || "submit"];
         if (submit) {
             submit(o);
             return false;
@@ -239,6 +270,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
             $("#container").children(":visible").hide();
             $("#row-" + action).show();
             $.isFunction(Actions[action].show) && Actions[action].show(Path[1]);
+            $.isFunction(common.show) && common.show(Path[1]);
         } else {
             seajs.use("./dist/hioogo/" + Config.version + "/controller/" + action, function(o) {
                 $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
@@ -247,6 +279,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
                     // init 方法仅首次加载时执行一次
                     $.isFunction(o.init) && o.init(Path[1]);
                     $.isFunction(o.show) && o.show(Path[1]);
+                    $.isFunction(common.show) && common.show(Path[1]);
                 });
                 Actions[action] = o;
             });
@@ -305,11 +338,9 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
 define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), md5 = require("md5/1.0.0/md5-debug");
     exports.show = function(name) {
-        name = name || "profile";
+        name = name || "website";
         $("#row-center form, #center-alert").hide();
         $("#center-" + name).show();
-        $("#row-center .sidenav li.active").removeClass("active");
-        $("#row-center .sidenav a[href*=" + name + "]").closest("li").addClass("active");
     };
     exports.init = function(name) {
         name = name || "profile";
@@ -565,15 +596,16 @@ define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-de
     };
     // 推荐主题
     exports["on-topicrecommend"] = function(o) {
-        var url = Config.serverLink("topics/" + currentTopicid);
+        var url = Config.serverLink("topics/recommend/" + currentTopicid);
         $.ajax({
             type: "PUT",
             dateType: "json",
             url: url
         }).success(function(result) {
-            if (result[0] === 200) {} else {
-                alert(result[1]);
-            }
+            if (result[0] === 200) {}
+            common.dialog({
+                content: result[1]
+            });
         }).error(function(xhr, status) {
             alert("出现错误，请稍候再试。");
         });
@@ -1003,10 +1035,44 @@ define("hioogo/0.1.0/controller/post-debug", [ "plupload/1.5.6/plupload-debug", 
         }
     };
 });
-define("hioogo/0.1.0/controller/setting-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
-    var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug");
-    exports.show = function(name) {};
-    exports.init = function() {};
+define("hioogo/0.1.0/controller/setting-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
+    var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), template = require("arttemplate/2.0.1/arttemplate-debug");
+    exports.show = function(name) {
+        name = name || "profile";
+        $("#row-setting form, #setting-alert").hide();
+        var form = $("#setting-" + name);
+        form.show();
+        common.formData(form);
+    };
+    exports.init = function() {
+        var html = template.render("tmpl-setting", {
+            categorys: []
+        });
+        $("#setting").html(html);
+        bind();
+    };
+    function bind() {
+        $("#setting-website").submit(function() {
+            var o = $(this);
+            var data = o.serializeArray();
+            $.ajax({
+                url: Config.serverLink(o.attr("action")),
+                type: "PUT",
+                data: data,
+                dataType: "json",
+                success: function(result) {
+                    if (result[0] === 200) {} else {}
+                },
+                error: function() {
+                    alert("提交失败，请稍候再试");
+                },
+                complete: function() {
+                    submitting = false;
+                }
+            });
+            return false;
+        });
+    }
 });
 define("hioogo/0.1.0/player/default.player-debug", [ "../common-debug", "../config-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug" ], function(require, exports, module) {
     var common = require("../common-debug"), photoCache = {}, currentIndex = 0, photoCount = 0, ismoving = 0, dom = $(document), win = $(window), current;

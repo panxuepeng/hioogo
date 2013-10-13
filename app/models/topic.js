@@ -20,14 +20,11 @@ var TopicSchema = new Schema({
   , updated_at: {type: Date, default: Date.now}
   , cover_photo: String // 封面照片url
   , visit_count: { type: Number, default: 0 } // 浏览数
-  , weight: { type: Number, default: 1 } // 权重[0-65535]
-  , status: { type: Number, default: -1 } // 状态: 0删除 -1待审 1正常
+  , weight: { type: Number, default: 0 } // 权重[0-100]
+  , status: { type: Number, default: -1 } // 状态: 0删除 -1待审 1正常 2优秀 3精华
   
   // photos: [ photo_id, ... ]
   , photos: Array
-  
-  // photos_des: {photo_id: description}
-  //, photos_des: Array
 })
 
 /**

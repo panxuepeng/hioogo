@@ -1,5 +1,7 @@
 var C = require("../common/index")
   , upload = require("./_upload")
+  , fs = require('fs')
+  , gm = require('gm')
   , User = C.model('User')
   , Photo = C.model('Photo')
   , utils = C.utils

@@ -64,15 +64,16 @@ define("hioogo/0.1.0/controller/photo-debug", [ "../config-debug", "../common-de
     };
     // 推荐主题
     exports["on-topicrecommend"] = function(o) {
-        var url = Config.serverLink("topics/" + currentTopicid);
+        var url = Config.serverLink("topics/recommend/" + currentTopicid);
         $.ajax({
             type: "PUT",
             dateType: "json",
             url: url
         }).success(function(result) {
-            if (result[0] === 200) {} else {
-                alert(result[1]);
-            }
+            if (result[0] === 200) {}
+            common.dialog({
+                content: result[1]
+            });
         }).error(function(xhr, status) {
             alert("出现错误，请稍候再试。");
         });

@@ -11,7 +11,7 @@ var control = {};
 // 显示主题列表
 control.index = function(req, res) {
 	
-	Topic.find({status: 1})
+	Topic.find({status: {'$gt':0}})
 	.skip(0)
 	.limit(10)
 	.exec(function (err, topics) {
@@ -130,7 +130,7 @@ control.update = function(req, res) {
 control.recommend = function(req, res) {
 	var topicid = req.params.topicid
 	Topic.update({_id: topicid}, {
-		status: 1
+		status: 2
 		, updated_at: req.time
 	}, function(err, numberAffected, raw) {
 		err ? res.jsonp([400, '主题推荐失败'])

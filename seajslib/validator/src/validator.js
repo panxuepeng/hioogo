@@ -364,8 +364,9 @@ define(function(require, exports){});
       , $items = fields(identifie, $form)
 
     // 防止浏览器默认校验
-    novalidate($form);
-
+	try {
+		novalidate($form);
+	} catch(e){}
     // 表单项校验
     method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 

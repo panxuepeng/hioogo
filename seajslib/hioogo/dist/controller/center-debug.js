@@ -1,11 +1,9 @@
 define("hioogo/0.1.0/controller/center-debug", [ "md5/1.0.0/md5-debug", "../config-debug", "../common-debug", "bootstrap/2.3.2/bootstrap-debug", "events/1.1.0/events-debug", "validator/1.2.0/validator-debug", "arttemplate/2.0.1/arttemplate-debug" ], function(require, exports, module) {
     var md5 = require("md5/1.0.0/md5-debug"), Config = require("../config-debug"), common = require("../common-debug"), template = require("arttemplate/2.0.1/arttemplate-debug"), md5 = require("md5/1.0.0/md5-debug");
     exports.show = function(name) {
-        name = name || "profile";
+        name = name || "website";
         $("#row-center form, #center-alert").hide();
         $("#center-" + name).show();
-        $("#row-center .sidenav li.active").removeClass("active");
-        $("#row-center .sidenav a[href*=" + name + "]").closest("li").addClass("active");
     };
     exports.init = function(name) {
         name = name || "profile";

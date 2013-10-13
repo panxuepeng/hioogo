@@ -61,8 +61,8 @@ function series(req, res) {
 						// 图片以及存在，直接返回
 						res.jsonp({id:photo._id, url:Photo.getPhotoUrl(photo)});
 					}
-				});
-			});
+				})
+			})
 		},
 		
 		// 获取照片的元信息
@@ -72,10 +72,9 @@ function series(req, res) {
 			.identify(function(err, data){
 				var exif
 				
-				// console.log(exif)
 				if (data && data['Profile-EXIF']) {
 					exif = data['Profile-EXIF']
-					
+					// console.log(data)
 					// 删除一些没用，但是比较长的字段信息
 					delete exif['Maker Note']
 					delete exif['0xC4A5']
@@ -85,7 +84,8 @@ function series(req, res) {
 					exif.height = data['size'].height
 					exif.filename = data.path
 					
-					var dt = exif['Date Time'].split(' ')
+					var dt = exif['Date Time'] || exif['Date Time Original']
+					dt = dt.split(' ')
 					dt[0] = dt[0].replace(':', '/').replace(':', '/')
 					exif['Date Time'] = new Date(dt.join(' '))
 				} else {
@@ -119,25 +119,25 @@ function series(req, res) {
 			// 创建缩略图
 			fs.writeFile(savePath, photoData, function(err) {
 				if (err) {
-					cb(err);
+					cb(err)
 				} else {
-					var thumbPath;
+					var thumbPath
 					async.eachLimit(config.thumbList, 2, function(item, cb2) {
-						thumbPath = savePath.replace('photo', 'public/photo/'+item[0]);
+						thumbPath = savePath.replace('photo', 'public/photo/'+item[0])
 						
 						gm(photoData)
 						.noProfile()
 						.resize(item[0], item[1])
 						.write(thumbPath, function (err2) {
-							cb2(err2);
+							cb2(err2)
 						});
 					}, function(err3) {
 						var url = thumbPath.split('public')[1]
 						url = url.replace(/photo\/\d{3,4}/, 'photo/'+config.thumbList[0][0])
-						cb(err3, url);
+						cb(err3, url)
 					});
 				}
-			});
+			})
 		},
 		
 		// 保存到数据库

@@ -6,14 +6,10 @@ define(function(require, exports, module){
 		, md5 = require('md5')
 
 	exports.show = function(name){
-		name = name || 'profile'
+		name = name || 'website'
 
 		$('#row-center form, #center-alert').hide()
 		$('#center-'+name).show()
-		
-		$('#row-center .sidenav li.active').removeClass('active')
-		$('#row-center .sidenav a[href*='+name+']').closest('li').addClass('active')
-		
 	}
 
 	exports.init = function(name) {

@@ -1,0 +1,82 @@
+{
+	"Format": "JPEG (Joint Photographic Experts Group JFIF format)",
+	"format": "JPEG",
+	"Geometry": "563x1000",
+	"size": {
+		"width": 563,
+		"height": 1000
+	},
+	"Class": "DirectClass",
+	"Type": "true color",
+	"Depth": "8 bits-per-pixel component",
+	"depth": 8,
+	"Channel Depths": {
+		"Red": "8 bits",
+		"Green": "8 bits",
+		"Blue": "8 bits"
+	},
+	"Channel Statistics": {
+		"Red": {
+			"Minimum": "6.00 (0.0235)",
+			"Maximum": "255.00 (1.0000)",
+			"Mean": "130.61 (0.5122)",
+			"Standard Deviation": "46.64 (0.1829)"
+		},
+		"Green": {
+			"Minimum": "3.00 (0.0118)",
+			"Maximum": "255.00 (1.0000)",
+			"Mean": "140.28 (0.5501)",
+			"Standard Deviation": "53.56 (0.2101)"
+		},
+		"Blue": {
+			"Minimum": "15.00 (0.0588)",
+			"Maximum": "255.00 (1.0000)",
+			"Mean": "156.52 (0.6138)",
+			"Standard Deviation": "49.73 (0.1950)"
+		}
+	},
+	"Filesize": "343.5K",
+	"Interlace": "No",
+	"Orientation": "Unknown",
+	"Background Color": "white",
+	"Border Color": "#DFDFDF",
+	"Matte Color": "#BDBDBD",
+	"Compose": "Over",
+	"Dispose": "Undefined",
+	"Iterations": "0",
+	"Compression": "JPEG",
+	"JPEG-Quality": "95",
+	"JPEG-Colorspace": "2",
+	"JPEG-Colorspace-Name": "RGB",
+	"JPEG-Sampling-factors": "1x1,1x1,1x1",
+	"Signature": "e0c70c18fab112a537c0055566646a00ff912c58cbc54b5be895507fa5fe759b",
+	"Profile-EXIF": {
+		"Make": "Xiaomi",
+		"Model": "mione_plus",
+		"X Resolution": "72/1",
+		"Y Resolution": "72/1",
+		"Resolution Unit": "2",
+		"Y Cb Cr Positioning": "1",
+		"Exif Offset": "134",
+		"Exposure Time": "1000/100000",
+		"F Number": "12/5",
+		"ISO Speed Ratings": "181",
+		"Exif Version": "0220",
+		"Date Time Original": "2011:12:05 04:44:47",
+		"Date Time Digitized": "2002:12:08 12:00:00",
+		"Components Configuration": "\\001\\002\\003\\000",
+		"Aperture Value": "3640/1441",
+		"Metering Mode": "1",
+		"Focal Length": "431/100",
+		"Flash Pix Version": "0100",
+		"Color Space": "1",
+		"Exif Image Width": "563",
+		"Exif Image Length": "1000",
+		"Interoperability Offset": "392"
+	},
+	"Tainted": "False",
+	"User Time": "0.031u",
+	"Elapsed Time": "0:01",
+	"Pixels Per Second": "19.9M",
+	"path": "C:\\Users\\PANXUE~1\\AppData\\Local\\Temp\\1704-1htjfof.jpg"
+}

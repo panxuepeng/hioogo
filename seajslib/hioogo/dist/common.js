@@ -18,6 +18,37 @@ define("hioogo/0.1.0/common", [ "./config", "bootstrap/2.3.2/bootstrap", "events
         $("footer").html(getFooterHtml());
     }
     exports.init = init;
+    exports.formData = function(form, fn) {
+        var path = form.attr("action");
+        if (!path) return;
+        $.ajax({
+            url: Config.serverLink(path),
+            type: "GET",
+            dataType: "json",
+            success: function(result) {
+                if (result[0] === 200) {
+                    form.find(":input").each(function() {
+                        var input = $(this), name = input.attr("name");
+                        if (typeof result[1][name] !== "undefined") {
+                            input.val(result[1][name]);
+                        }
+                        if (typeof fn === "function") {
+                            fn.call(form, result[1]);
+                        }
+                    });
+                } else {}
+            },
+            error: function() {
+                alert("数据加载失败，请稍候再试");
+            },
+            complete: function() {}
+        });
+    };
+    exports.show = function(name) {
+        // 切换侧栏菜单
+        $(".sidenav li.active").removeClass("active");
+        $(".sidenav a[href*=" + name + "]").closest("li").addClass("active");
+    };
     // 检查登录状态
     exports.checkLogin = function(result) {
         var pages = Config.pages;

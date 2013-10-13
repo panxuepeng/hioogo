@@ -11,19 +11,19 @@
 	</div>
 	
 	<script type="text/html" id="tmpl-setting" class="hide">
-		<form class="form-horizontal" id="setting-website">
+		<form class="form-horizontal" id="setting-website" action="setting/website">
 			<legend>网站设置</legend>
 			<div class="control-group">
 				<label class="control-label">网站名称</label>
 				<div class="controls">
-					<input name="post[title]" value="<%=title%>" type="text" maxlength="20"/>
+					<input name="title" value="<%=title%>" type="text" maxlength="20"/>
 				</div>
 			</div>
 
 			<div class="control-group">
 				<label class="control-label">关闭网站</label>
 				<div class="controls">
-					<input name="post[status]" value="<%=status%>" type="password">
+					<input name="status" value="<%=status%>" type="text">
 				</div>
 			</div>
 			
@@ -35,7 +35,7 @@
 		</form>
 		
 		
-		<form class="form-horizontal hide" id="setting-category">
+		<form class="form-horizontal hide" id="setting-category" action="setting/category">
 			<legend>主题分类设置</legend>
 			<ol>
 				<% for (var i = 0; i < categorys.length; i++) { %>
@@ -50,9 +50,9 @@
 				</div>
 			</div>
 		</form>
-		<div class="alert alert-success hide" id="center-alert">
+		<div class="alert alert-success hide" id="setting-alert">
 			<button type="button" class="close" data-dismiss="alert">×</button>
-			<div id="center-msg"></div>
+			<div id="setting-msg"></div>
 		</div>
 	</script>
 </div>

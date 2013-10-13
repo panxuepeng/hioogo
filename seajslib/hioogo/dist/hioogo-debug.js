@@ -33,7 +33,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
     });
     // 响应 submit 事件
     $(document).delegate("form", "submit", function() {
-        var o = $(this), submit = Actions[Config.action]["submit" || o.data("submit")];
+        var o = $(this), submit = Actions[Config.action][o.data("submit") || "submit"];
         if (submit) {
             submit(o);
             return false;
@@ -53,6 +53,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
             $("#container").children(":visible").hide();
             $("#row-" + action).show();
             $.isFunction(Actions[action].show) && Actions[action].show(Path[1]);
+            $.isFunction(common.show) && common.show(Path[1]);
         } else {
             seajs.use("./dist/hioogo/" + Config.version + "/controller/" + action, function(o) {
                 $.get(Config.getTmplPath(o.tmpl || action), function(tmpl) {
@@ -61,6 +62,7 @@ define("hioogo/0.1.0/hioogo-debug", [ "./config-debug", "./common-debug", "boots
                     // init 方法仅首次加载时执行一次
                     $.isFunction(o.init) && o.init(Path[1]);
                     $.isFunction(o.show) && o.show(Path[1]);
+                    $.isFunction(common.show) && common.show(Path[1]);
                 });
                 Actions[action] = o;
             });
