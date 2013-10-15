@@ -5,7 +5,7 @@ define(function(require, exports, module){
 		, template = require('template')
 
 	exports.show = function(name){
-		name = name || 'profile'
+		name = name || 'website'
 
 		$('#row-setting form, #setting-alert').hide()
 		var form = $('#setting-'+name)

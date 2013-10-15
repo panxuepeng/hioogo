@@ -15,9 +15,10 @@
 .project
 .settings/
 node_modules/
+data/
 buildlog/
 seajslib/node_modules/
-seajslib/*/dist/
+seajslib/hioogo/dist/
 photo/
 public/photo/
 _site/
